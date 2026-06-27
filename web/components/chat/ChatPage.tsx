@@ -81,6 +81,8 @@ export default function ChatPage() {
   const [msgs, setMsgs] = useState<Msg[]>([])
   const [streamingMap, setStreamingMap] = useState<Record<string, Streaming>>({})
   const [queued, setQueued] = useState<Record<string, number>>({})
+  const [showSys, setShowSys] = useState(false)
+  const [sysText, setSysText] = useState('')
   const [q, setQ] = useState('')
   const [input, setInput] = useState('')
   const msgsRef = useRef<HTMLDivElement>(null)
@@ -135,12 +137,8 @@ export default function ChatPage() {
 
   const selectPerson = (id: string) => setPersonId(id)
   const selectConv = (id: string) => { setConvId(id); loadMsgs(id) }
-  const newConv = async () => {
-    if (!convReplicaId) return
-    const conv = await createConversation(convReplicaId, DIR[tab], currentId)
-    cacheClear('convs:')
-    setConvs((prev) => [conv, ...prev]); setConvId(conv.id); setMsgs([])
-  }
+  // 新建对话只切到空白态，不写表；发首条消息时(doSend convId 为空)才 createConversation
+  const newConv = () => { setConvId(''); setMsgs([]) }
 
   const doSend = async (v: string, p: Person, curConvId: string) => {
     const botAv = { cls: p.cls, ini: p.ini }
@@ -200,6 +198,18 @@ export default function ChatPage() {
   const stop = () => {
     const s = convId ? streamingMap[convId] : undefined
     s?.abort.abort()
+  }
+
+  // 查看当前会话生效的完整系统提示词（人格 + 场景）
+  const viewSys = async () => {
+    if (!convReplicaId) return
+    const owner = tab === 'iAsk' && personId === currentId
+    setSysText('加载中…'); setShowSys(true)
+    try {
+      const r = await fetch(`/api/system-prompt?replicaId=${convReplicaId}&isOwner=${owner}`)
+      const d = await r.json()
+      setSysText(d.systemPrompt || '(空)')
+    } catch { setSysText('(加载失败)') }
   }
 
   const cur = convId ? streamingMap[convId] : undefined
@@ -269,7 +279,10 @@ export default function ChatPage() {
               )}
             </div>
             <div className="composer">
-              {qCount > 0 && <div style={{ fontSize: '11px', color: 'var(--mute)', padding: '0 4px 4px' }}>排队中 {qCount} 条，将在当前回复后依次发送</div>}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0 4px 6px' }}>
+                <button onClick={viewSys} style={{ fontSize: '11.5px', color: 'var(--dim)', background: 'transparent', border: '1px solid var(--stroke)', borderRadius: '7px', padding: '3px 10px', cursor: 'pointer' }}>📋 系统提示词</button>
+                {qCount > 0 && <span style={{ fontSize: '11px', color: 'var(--mute)' }}>排队中 {qCount} 条，答完依次发送</span>}
+              </div>
               <div className="cbox">
                 <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) send() }} placeholder={busy ? '回复中…回车可排队' : '输入消息…回车或点击发送'} />
                 {busy
@@ -282,6 +295,19 @@ export default function ChatPage() {
           <div className="empty-chat"><div className="e-ic">💬</div>选择左侧分身开始提问</div>
         )}
       </div>
+
+      {showSys && (
+        <div onClick={() => setShowSys(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: 560, maxWidth: '90vw', maxHeight: '80vh', display: 'flex', flexDirection: 'column', background: 'var(--base-edge)', color: 'var(--text)', border: '1px solid var(--stroke)', borderRadius: 16, padding: 20 }}>
+            <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>系统提示词</div>
+            <div style={{ fontSize: 11.5, color: 'var(--mute)', marginBottom: 12 }}>分身人格 + 当前场景指令，发送消息时随对话历史一起发给模型</div>
+            <pre style={{ flex: 1, overflow: 'auto', whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontSize: 12.5, lineHeight: 1.65, background: 'var(--input-bg)', padding: '12px 14px', borderRadius: 10, margin: 0 }}>{sysText}</pre>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 14 }}>
+              <button className="btn" onClick={() => setShowSys(false)}>关闭</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
