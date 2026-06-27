@@ -1,6 +1,7 @@
-// 返回某分身在某场景下「组装后的完整系统提示词」（人格 persona + 场景指令）
+// 返回某分身在某场景下「组装后的完整系统提示词」（模板填充真实信息 + 场景指令）
 import { supabaseAdmin } from '@/lib/db/client'
 import { getSettings } from '@/lib/db/settings'
+import { buildSystemPrompt } from '@/lib/agent/buildSystemPrompt'
 
 export const runtime = 'nodejs'
 
@@ -12,16 +13,20 @@ export async function GET(req: Request) {
 
   const { data: replica } = await supabaseAdmin
     .from('replicas')
-    .select('name, persona_prompt')
+    .select('name, role, org, team, bio, mbti, hobbies, persona_prompt')
     .eq('id', replicaId)
     .maybeSingle()
+  if (!replica) return Response.json({ error: '分身不存在' }, { status: 404 })
 
   const settings = await getSettings()
-  const basePersona =
-    replica?.persona_prompt ||
-    `你是${replica?.name || '某人'}的数字分身，用第一人称作答；不确定就老实说不知道，不杜撰。`
   const scene = isOwner ? settings.ownerPrompt : settings.visitorPrompt
-  const systemPrompt = [basePersona, scene].filter(Boolean).join('\n\n')
+  const { data: docs } = await supabaseAdmin
+    .from('articles')
+    .select('title')
+    .eq('replica_id', replicaId)
+    .eq('status', 'enabled')
+  const docTitles = (docs || []).map((d) => d.title).filter(Boolean) as string[]
 
-  return Response.json({ systemPrompt, persona: basePersona, scene })
+  const systemPrompt = buildSystemPrompt(replica, docTitles, scene)
+  return Response.json({ systemPrompt })
 }

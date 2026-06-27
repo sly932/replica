@@ -4,6 +4,7 @@ import { buildReplicaAgent } from '@/lib/agent/replicaAgent'
 import { buildToolset } from '@/lib/agent/tools'
 import { supabaseAdmin } from '@/lib/db/client'
 import { getSettings } from '@/lib/db/settings'
+import { buildSystemPrompt } from '@/lib/agent/buildSystemPrompt'
 import { addMessage, ensureTitle, getMessages } from '@/lib/db/conversations'
 
 export const runtime = 'nodejs' // pi-agent-core 需要 Node 运行时（非 edge）
@@ -17,7 +18,7 @@ export async function POST(req: Request) {
   // 取分身人格
   const { data: replica, error } = await supabaseAdmin
     .from('replicas')
-    .select('id, name, role, persona_prompt')
+    .select('id, name, role, org, team, bio, mbti, hobbies, persona_prompt')
     .eq('id', replicaId)
     .single()
   if (error || !replica) {
@@ -37,14 +38,18 @@ export async function POST(req: Request) {
 
   const ctx = { replicaId, isOwner: !!isOwner }
   const settings = await getSettings() // 全局默认模型 + 两处场景提示词（系统设置页可改）
-  const basePersona =
-    replica.persona_prompt ||
-    `你是${replica.name}的数字分身，用第一人称作答；不确定就老实说不知道，不杜撰。`
-  const scene = isOwner ? settings.ownerPrompt : settings.visitorPrompt // 两处系统提示词按场景注入
+  const scene = isOwner ? settings.ownerPrompt : settings.visitorPrompt
+  // 系统提示词 = 统一模板 + 分身真实信息(字段 + 已启用文档清单) + 场景指令
+  const { data: docs } = await supabaseAdmin
+    .from('articles')
+    .select('title')
+    .eq('replica_id', replicaId)
+    .eq('status', 'enabled')
+  const docTitles = (docs || []).map((d) => d.title).filter(Boolean) as string[]
   const agent = buildReplicaAgent({
-    systemPrompt: [basePersona, scene].filter(Boolean).join('\n\n'),
+    systemPrompt: buildSystemPrompt(replica, docTitles, scene),
     modelId: model || settings.chatModel, // 对话框传的优先，否则用系统设置默认
-    tools: buildToolset(ctx), // 回答别人=检索+沉淀；主人=额外 manageMemory
+    tools: buildToolset(ctx), // 工具不在 systemPrompt 里，作为 tools 独立传给模型
     messages: history, // 注入会话历史，让分身记得上文
   })
 

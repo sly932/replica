@@ -94,7 +94,7 @@ export default function ChatPage() {
   const person = people.find((p) => p.id === personId)
   // i_ask(我问TA)：被问=personId，提问者=当前用户；ask_me(TA问我)：被问=当前用户的分身
   const convReplicaId = tab === 'askMe' ? currentId : personId
-  const askerId = tab === 'iAsk' ? currentId : undefined
+  const askerId = tab === 'iAsk' ? currentId : personId // 我问TA→我是提问者；TA问我→选中的人是提问者
 
   useEffect(() => { convIdRef.current = convId }, [convId])
   useEffect(() => { streamingMapRef.current = streamingMap }, [streamingMap])
@@ -117,7 +117,7 @@ export default function ChatPage() {
   useEffect(() => {
     if (!convReplicaId || !currentId) return
     let alive = true
-    const ck = `convs:${convReplicaId}:${tab}:${currentId}`
+    const ck = `convs:${convReplicaId}:${tab}:${askerId}`
     const apply = (cs: Conv[]) => {
       if (!alive) return
       setConvs(cs)
@@ -143,10 +143,11 @@ export default function ChatPage() {
   const doSend = async (v: string, p: Person, curConvId: string) => {
     const botAv = { cls: p.cls, ini: p.ini }
     const cReplica = tab === 'askMe' ? currentId : p.id
+    const cAsker = tab === 'askMe' ? p.id : currentId // TA问我→提问者是对方
     const isOwner = tab === 'iAsk' && p.id === currentId // 我问我自己的分身
     let cid = curConvId
     if (!cid) {
-      const conv = await createConversation(cReplica, DIR[tab], currentId)
+      const conv = await createConversation(cReplica, DIR[tab], cAsker)
       cid = conv.id
       cacheClear('convs:')
       setConvs((prev) => [conv, ...prev]); setConvId(cid)
@@ -168,7 +169,7 @@ export default function ChatPage() {
         if (convIdRef.current === cid) setMsgs((prev) => [...prev, { side: 'left', av: botAv, type: 'text', text: acc, toolCalls: finalTools.length ? finalTools : undefined }])
         setStreamingMap((m) => { const n = { ...m }; delete n[cid]; return n })
         cacheClear(`msgs:${cid}`); cacheClear('convs:')
-        listConversations(cReplica, DIR[tab], tab === 'iAsk' ? currentId : undefined).then((cs) => { cacheSet(`convs:${cReplica}:${tab}:${currentId}`, cs); setConvs(cs) }).catch(() => {})
+        listConversations(cReplica, DIR[tab], cAsker).then((cs) => { cacheSet(`convs:${cReplica}:${tab}:${cAsker}`, cs); setConvs(cs) }).catch(() => {})
         const ql = queueRef.current[cid] || []
         if (ql.length) {
           const next = ql.shift()!
