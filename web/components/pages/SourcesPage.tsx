@@ -29,15 +29,11 @@ export default function SourcesPage() {
   const upload = async () => {
     const title = await promptDialog('文档标题：')
     if (!title) return
-    const content = (await promptDialog('文档正文（留空则改用文档链接）：')) || ''
-    let sourceUrl: string | undefined
-    if (!content) {
-      sourceUrl = (await promptDialog('文档链接（如 https://docs.xinglan.com/...）：')) || undefined
-      if (!sourceUrl) return
-    }
+    const content = (await promptDialog('文档正文（Markdown）：')) || ''
+    if (!content) return
     setBusy(true)
     try {
-      await addArticle(currentId, { title, content: content || undefined, sourceUrl })
+      await addArticle(currentId, { title, content })
       await reload()
     } catch (e) {
       await alertDialog((e as Error).message)
@@ -78,7 +74,6 @@ export default function SourcesPage() {
                 <div className="t" style={{ cursor: 'pointer' }} onClick={() => openDoc(d.id)} title="打开文档展示页">{d.title || '未命名文档'}</div>
                 <div className="d">{(d.content || '').slice(0, 80) || '（无正文）'}</div>
                 <div className="meta">
-                  {d.source_url && <span>🔗 {d.source_url}</span>}
                   <span>{new Date(d.created_at).toLocaleDateString()}</span>
                 </div>
               </div>

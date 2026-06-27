@@ -505,7 +505,7 @@ h2{font-family:var(--font-display);font-size:var(--h2-size);font-weight:600;line
         <div class="trow">
           <div class="tnum">01</div>
           <div class="tmain"><span class="ten">Agent Architecture</span><span class="tcn">架构选型</span></div>
-          <div class="tdesc">单 Agent + ReAct 式可控多步循环；纯问答 1 步直答，深度推理才放开 step 预算（双路自进化第二路）</div>
+          <div class="tdesc">每个分身 = 一个独立 Agent：人格系统提示(人格 + 边界) + 工具集，跑 ReAct 式调用循环；不堆多 Agent，复杂度交给工具设计与边界控制</div>
         </div>
         <div class="trow">
           <div class="tnum">02</div>
@@ -571,7 +571,7 @@ h2{font-family:var(--font-display);font-size:var(--h2-size);font-weight:600;line
     </div>
     <div class="src-list reveal" style="margin-top:clamp(.5rem,1.4vh,.9rem)">
       <div class="sl-head">参考来源（原文）</div>
-      <div class="src-line"><span class="sn">[1]</span><b>McKinsey《The Social Economy》</b>：<i>"28 hours — Time each week spent by knowledge workers writing e-mails, searching for information, and collaborating internally."</i>（$1,240 万与 40% 回收比例为基于该类工时占比的估算）</div>
+      <div class="src-line"><span class="sn">[1]</span><b>McKinsey《The Social Economy》</b>：<i>"28 hours — Time each week spent by knowledge workers writing e-mails, searching for information, and collaborating internally."</i>　测算：可寻址浪费约 5 h/人/周 ×46 周 = 230 h/人/年；按 fully-loaded 年薪 $10 万(≈$54/h) → 人均 $1.24 万/年 ×1,000 人 = <b>$1,240 万</b>；回收 40% ≈ <b>$496 万</b>。工时占比据 McKinsey/APQC/Panopto，回收率为估算。</div>
       <div class="src-line"><span class="sn">[2]</span><b>Gallup《This Fixable Problem Costs U.S. Businesses $1 Trillion》</b>：<i>"The cost of replacing an individual employee can range from one-half to two times the employee's annual salary."</i>（"$1 trillion … every year due to voluntary turnover"）</div>
       <div class="src-line"><span class="sn">[3]</span><b>Gartner（经 CX Today 报道）</b>：<i>"bots will reduce agent labor costs by as much as $80BN in 2026."</i></div>
     </div>
