@@ -1,0 +1,12 @@
+{
+  "name": "replica",
+  "private": true,
+  "description": "Replica 数字分身平台 — Railway 部署入口（构建/启动代理到 web/）",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "cd web && npm install && npm run build",
+    "start": "cd web && npm start"
+  }
+}
