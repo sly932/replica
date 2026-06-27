@@ -5,6 +5,7 @@
 //   50-100 字上下文说明）→ embed(context + chunk_text) → 入 chunks。
 // 检索：hybridSearch: embed(query) → 向量(matchChunks/matchKnowledge) + 关键词 → RRF → 结果。
 import { embed, embedOne } from '../llm/embedding'
+import { supabaseAdmin } from '../db/client'
 import {
   insertRow,
   matchChunks,
@@ -144,6 +145,53 @@ export async function ingestArticle(
   }
 
   return { articleId, chunkCount: pieces.length }
+}
+
+// ============================================================
+// 3b. ingestArticleById：对「已存在」的 article 原文重新向量化入库
+//     不创建新 article；先删旧 chunks 再分块+上下文化+embed+插入，避免重复。
+// ============================================================
+export async function ingestArticleById(articleId: string): Promise<{ chunkCount: number }> {
+  // 取已存在文档原文
+  const { data: article, error } = await supabaseAdmin
+    .from('articles')
+    .select('id, replica_id, content, title')
+    .eq('id', articleId)
+    .maybeSingle()
+  if (error) throw new Error(`查 article 失败: ${error.message}`)
+  if (!article) throw new Error('NOT_FOUND')
+
+  const replicaId = article.replica_id as string
+  const content = (article.content as string | null) ?? ''
+  if (!content.trim()) throw new Error('该文档无正文内容')
+
+  // 删旧 chunks，避免重复
+  const { error: delErr } = await supabaseAdmin.from('chunks').delete().eq('article_id', articleId)
+  if (delErr) throw new Error(`删除旧 chunks 失败: ${delErr.message}`)
+
+  // 分块 → 每块上下文说明 → contextual embedding → 插 chunks
+  const pieces = chunkText(content)
+
+  const contexts: string[] = []
+  for (const piece of pieces) {
+    contexts.push(await genContext(content, piece))
+  }
+
+  const inputs = pieces.map((p, i) => `${contexts[i]}\n\n${p}`)
+  const vectors = await embed(inputs)
+
+  for (let i = 0; i < pieces.length; i++) {
+    await insertRow('chunks', {
+      article_id: articleId,
+      replica_id: replicaId,
+      chunk_text: pieces[i],
+      context: contexts[i],
+      embedding: vectors[i],
+      idx: i,
+    })
+  }
+
+  return { chunkCount: pieces.length }
 }
 
 // ============================================================

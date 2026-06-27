@@ -46,8 +46,15 @@ export async function POST(req: Request) {
     .eq('replica_id', replicaId)
     .eq('status', 'enabled')
   const docTitles = (docs || []).map((d) => d.title).filter(Boolean) as string[]
+  const { data: mems } = await supabaseAdmin
+    .from('memories')
+    .select('content')
+    .eq('replica_id', replicaId)
+    .eq('enabled', true)
+    .eq('deleted', false)
+  const memories = (mems || []).map((m) => m.content).filter(Boolean) as string[]
   const agent = buildReplicaAgent({
-    systemPrompt: buildSystemPrompt(replica, docTitles, scene),
+    systemPrompt: buildSystemPrompt(replica, docTitles, memories, scene),
     modelId: model || settings.chatModel, // 对话框传的优先，否则用系统设置默认
     tools: buildToolset(ctx), // 工具不在 systemPrompt 里，作为 tools 独立传给模型
     messages: history, // 注入会话历史，让分身记得上文

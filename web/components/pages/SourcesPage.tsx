@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { IcDoc, IcEdit } from '@/lib/icons'
 import { useReplica } from '@/lib/replicaContext'
 import {
-  listArticles, addArticle, patchArticle, deleteArticle,
+  listArticles, ingestArticleById, patchArticle, deleteArticle,
   type Article,
 } from '@/lib/api/manage'
 import { confirmDialog, alertDialog, promptDialog } from '@/lib/dialog'
@@ -27,14 +27,16 @@ export default function SourcesPage() {
   const openDoc = (id: string) => window.open(`${appUrl}/doc/${id}`, '_blank')
 
   const upload = async () => {
-    const title = await promptDialog('文档标题：')
-    if (!title) return
-    const content = (await promptDialog('文档正文（Markdown）：')) || ''
-    if (!content) return
+    const link = await promptDialog('粘贴文档链接（如 https://站点/doc/xxx）：')
+    if (!link) return
+    // 取末段作为 articleId：去掉 query/hash 后 split('/').pop()
+    const articleId = link.trim().split(/[?#]/)[0].replace(/\/+$/, '').split('/').pop() || ''
+    if (!articleId) { await alertDialog('链接无效，无法提取文档 ID'); return }
     setBusy(true)
     try {
-      await addArticle(currentId, { title, content })
+      const { chunkCount } = await ingestArticleById(articleId)
       await reload()
+      await alertDialog(`已重新向量化入库，生成 ${chunkCount} 块`)
     } catch (e) {
       await alertDialog((e as Error).message)
     } finally {

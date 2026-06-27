@@ -26,7 +26,14 @@ export async function GET(req: Request) {
     .eq('replica_id', replicaId)
     .eq('status', 'enabled')
   const docTitles = (docs || []).map((d) => d.title).filter(Boolean) as string[]
+  const { data: mems } = await supabaseAdmin
+    .from('memories')
+    .select('content')
+    .eq('replica_id', replicaId)
+    .eq('enabled', true)
+    .eq('deleted', false)
+  const memories = (mems || []).map((m) => m.content).filter(Boolean) as string[]
 
-  const systemPrompt = buildSystemPrompt(replica, docTitles, scene)
+  const systemPrompt = buildSystemPrompt(replica, docTitles, memories, scene)
   return Response.json({ systemPrompt })
 }

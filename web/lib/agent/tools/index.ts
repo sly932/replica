@@ -6,6 +6,8 @@ import type { ToolCtx } from './_shared'
 import { makeSearchKnowledgeTool } from './searchKnowledge'
 import { makeSearchMemoryTool } from './searchMemory'
 import { makeSearchConversationTool } from './searchConversation'
+import { makeListKnowledgeTool } from './listKnowledge'
+import { makeListKnowledgeItemTool } from './listKnowledgeItem'
 import { makeReadDocumentTool } from './readDocument'
 import { makeReadKnowledgeItemTool } from './readKnowledgeItem'
 import { makeSaveQuestionTool } from './saveQuestion'
@@ -17,6 +19,8 @@ export function buildToolset(ctx: ToolCtx): AgentTool<any>[] {
     makeSearchKnowledgeTool(ctx),
     makeSearchMemoryTool(ctx),
     makeSearchConversationTool(ctx),
+    makeListKnowledgeTool(ctx),
+    makeListKnowledgeItemTool(ctx),
     makeReadDocumentTool(ctx),
     makeReadKnowledgeItemTool(ctx),
     makeSaveQuestionTool(ctx),

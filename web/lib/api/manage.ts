@@ -58,6 +58,19 @@ export async function addArticle(
   cacheClear('articles:')
 }
 
+// 把已存在的文档（按 articleId）重新向量化入库（不创建新 article）
+export async function ingestArticleById(articleId: string): Promise<{ chunkCount: number }> {
+  const r = await fetch('/api/articles/ingest', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ articleId }),
+  })
+  const d = await r.json().catch(() => ({}))
+  if (!r.ok) throw new Error(d.error || '入库失败')
+  cacheClear('articles:')
+  return d as { chunkCount: number }
+}
+
 export async function patchArticle(id: string, patch: { status?: string; title?: string }): Promise<void> {
   const r = await fetch(`/api/articles/${id}`, {
     method: 'PATCH',
