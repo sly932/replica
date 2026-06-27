@@ -1,0 +1,58 @@
+[
+  {
+    "mis_id": "chenhao01",
+    "articles": [
+      { "title": "灵犀系统架构总览", "file": "articles/chenhao01/architecture.md", "source_url": "https://docs.xinglan.com/lingxi/backend/architecture" },
+      { "title": "灵犀部署手册", "file": "articles/chenhao01/deployment.md", "source_url": "https://docs.xinglan.com/lingxi/backend/deployment" },
+      { "title": "灵犀线上值班 SOP", "file": "articles/chenhao01/oncall-sop.md", "source_url": "https://docs.xinglan.com/lingxi/backend/oncall-sop" },
+      { "title": "灵犀踩坑记录", "file": "articles/chenhao01/pitfalls.md", "source_url": "https://docs.xinglan.com/lingxi/backend/pitfalls" }
+    ]
+  },
+  {
+    "mis_id": "linyue01",
+    "articles": [
+      { "title": "灵犀产品需求总览", "file": "articles/linyue01/product-overview.md", "source_url": "https://docs.xinglan.com/lingxi/product/overview" },
+      { "title": "转人工与知识沉淀产品逻辑", "file": "articles/linyue01/handoff-knowledge-logic.md", "source_url": "https://docs.xinglan.com/lingxi/product/handoff-knowledge-logic" },
+      { "title": "灵犀商家 FAQ 知识库规范", "file": "articles/linyue01/faq-kb-spec.md", "source_url": "https://docs.xinglan.com/lingxi/product/faq-kb-spec" }
+    ]
+  },
+  {
+    "mis_id": "wangzhe01",
+    "articles": [
+      { "title": "灵犀前端工程结构说明", "file": "articles/wangzhe01/frontend-structure.md", "source_url": "https://docs.xinglan.com/lingxi/frontend/structure" },
+      { "title": "坐席工作台组件库说明", "file": "articles/wangzhe01/agent-workbench-components.md", "source_url": "https://docs.xinglan.com/lingxi/frontend/agent-workbench-components" }
+    ]
+  },
+  {
+    "mis_id": "suqing01",
+    "articles": [
+      { "title": "磐石指标口径字典", "file": "articles/suqing01/metric-dictionary.md", "source_url": "https://docs.xinglan.com/panshi/data/metric-dictionary" },
+      { "title": "磐石产品需求总览", "file": "articles/suqing01/product-overview.md", "source_url": "https://docs.xinglan.com/panshi/data/product-overview" },
+      { "title": "指标变更记录", "file": "articles/suqing01/metric-changelog.md", "source_url": "https://docs.xinglan.com/panshi/data/metric-changelog" }
+    ]
+  },
+  {
+    "mis_id": "linwan01",
+    "articles": [
+      { "title": "SSO 接入手册", "file": "articles/linwan01/sso-guide.md", "source_url": "https://docs.xinglan.com/account/sso/guide" },
+      { "title": "Token 续期与会话机制说明", "file": "articles/linwan01/token-refresh.md", "source_url": "https://docs.xinglan.com/account/sso/token-refresh" },
+      { "title": "休假交接清单", "file": "articles/linwan01/leave-handover.md", "source_url": "https://docs.xinglan.com/account/handover/linwan-maternity" }
+    ]
+  },
+  {
+    "mis_id": "zhaoqiming01",
+    "articles": [
+      { "title": "MaaS 平台系统架构", "file": "articles/zhaoqiming01/maas-architecture.md", "source_url": "https://docs.xinglan.com/maas/platform/architecture" },
+      { "title": "模型接入与配额申请 SOP", "file": "articles/zhaoqiming01/model-quota-sop.md", "source_url": "https://docs.xinglan.com/maas/platform/model-quota-sop" },
+      { "title": "MaaS 值班与限流预案", "file": "articles/zhaoqiming01/oncall-throttle.md", "source_url": "https://docs.xinglan.com/maas/platform/oncall-throttle" }
+    ]
+  },
+  {
+    "mis_id": "luzhiran01",
+    "articles": [
+      { "title": "新人 Landing 全流程指南", "file": "articles/luzhiran01/newcomer-landing.md", "source_url": "https://docs.xinglan.com/ld/newcomer/landing" },
+      { "title": "Mentor 制度与匹配规则", "file": "articles/luzhiran01/mentor-policy.md", "source_url": "https://docs.xinglan.com/ld/newcomer/mentor-policy" },
+      { "title": "新人高频问题 FAQ", "file": "articles/luzhiran01/newcomer-faq.md", "source_url": "https://docs.xinglan.com/ld/newcomer/faq" }
+    ]
+  }
+]

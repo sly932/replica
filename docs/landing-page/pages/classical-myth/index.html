@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<!--
+  Replica 落地页 · 主题：古典神话（明亮新古典史诗画）
+  纯原生 HTML/CSS/JS，零构建，file:// 直接打开。
+  设计语言（学自 matrix.build / luciusai.com）：
+    - Instrument Serif 衬线大标题 + 单词斜体强调
+    - DM Mono 全大写小标签 / 编号
+    - 「怎么工作」用 sticky scroll-spy 滚动叙事（左目录高亮 + 右分段）
+    - 宽幅图做 footer 全宽横幅
+  图片复用 ../../assets/04-classical-myth/
+-->
+<html lang="zh">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Replica · 让你的经验长成一个分身</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ===== 顶部导航：透明浮在 hero 上，滚动后加底 ===== -->
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="#">Replica</a>
+    <nav class="nav-links">
+      <a href="#how">怎么工作</a>
+      <a href="#caps">能力</a>
+      <a href="#">对比</a>
+    </nav>
+    <div class="nav-right">
+      <span class="lang">中 / EN</span>
+      <a href="#cta" class="btn btn-primary">创建分身</a>
+    </div>
+  </div>
+</header>
+
+<!-- ===== Hero：整图满屏，文字压在左侧留白天空上 ===== -->
+<section class="hero">
+  <img class="hero-bg" src="../../assets/04-classical-myth/dioscuri-twins.png" alt="双子：你与你的数字分身" />
+  <div class="hero-scrim"></div>
+  <div class="hero-overlay">
+    <div class="hero-copy">
+      <p class="eyebrow">员工数字分身平台</p>
+      <h1>让你的经验，<br />长成一个 <em>分身</em>。</h1>
+      <p class="lede">为每位员工，3 分钟创建一个有人格的数字分身。同事问它，像在问你本人；它越用越懂你，还能在离职、休假、轮岗时随岗位交接——让经验不再锁在一个人的脑子里。</p>
+      <form class="capsule" onsubmit="return fakeSubmit(this)">
+        <input type="email" placeholder="输入你的工作邮箱" required />
+        <button type="submit" class="btn btn-primary">加入内测</button>
+      </form>
+      <p class="micro">答不出不硬答，诚实转你本人 · 无需信用卡</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 场景行（取自蓝图六大痛点场景）===== -->
+<section class="trust">
+  <span class="trust-label">为这些场景而生</span>
+  <ul class="trust-logos">
+    <li>专家答疑</li><li>新人上手</li><li>离职 / 休假交接</li><li>跨组协作</li><li>客服知识库</li><li>群机器人盯场</li>
+  </ul>
+</section>
+
+<!-- ===== 怎么工作：sticky scroll-spy 滚动叙事 ===== -->
+<section class="how" id="how">
+  <div class="how-grid">
+    <!-- 左：sticky 目录，滚动高亮 -->
+    <aside class="how-rail">
+      <p class="eyebrow">— 怎么工作</p>
+      <ol class="rail-list">
+        <li data-step="1" class="active"><span class="num">01</span>创建分身</li>
+        <li data-step="2"><span class="num">02</span>替你答重复问题</li>
+        <li data-step="3"><span class="num">03</span>答不出转你</li>
+        <li data-step="4"><span class="num">04</span>越用越懂你</li>
+      </ol>
+    </aside>
+    <!-- 右：分段内容 -->
+    <div class="how-stream">
+      <article class="step" data-step="1">
+        <div class="step-media"><img src="../../assets/concept/create.png" alt="创建分身：名片 + 文档" /></div>
+        <p class="step-eyebrow">01 / 创建分身</p>
+        <h3>3 分钟，造一个有你人格的分身</h3>
+        <p>填好岗位、角色与人格设定，上传你的文档建起专属知识库——一个会按你的口吻、你的判断说话的数字分身，就此成形。</p>
+      </article>
+      <article class="step" data-step="2">
+        <div class="step-media"><img src="../../assets/concept/answer.png" alt="替你答重复问题" /></div>
+        <p class="step-eyebrow">02 / 替你答重复问题</p>
+        <h3>重复的问题，它替你接住</h3>
+        <p>同事随时来问，分身基于你的知识库人格化作答，并<strong>标注出处</strong>。那些一天被打断十几次的重复问题，不必每次都惊动你。</p>
+      </article>
+      <article class="step" data-step="3">
+        <div class="step-media"><img src="../../assets/concept/handoff.png" alt="答不出诚实转你" /></div>
+        <p class="step-eyebrow">03 / 答不出，诚实转你</p>
+        <h3>拿不准，它不会硬编</h3>
+        <p>检索不到或没有把握时，它会如实说明、把问题转交给你本人，而不是抛给同事一个看似可信的错误答案。你补答的每一句，都会沉淀回<strong>你自己的分身</strong>——下次它就答得出。</p>
+      </article>
+      <article class="step" data-step="4">
+        <div class="step-media"><img src="../../assets/concept/memory.png" alt="越用越懂你" /></div>
+        <p class="step-eyebrow">04 / 越用越懂你</p>
+        <h3>你补一次，它懂一辈子</h3>
+        <p>聊过的偏好、答过的判断、谁问过什么，都会沉淀成多层记忆。它记得你，也记得每个提问的人——越用越准，越用越像你本人。</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 能力 Bento ===== -->
+<section class="caps" id="caps">
+  <div class="caps-head">
+    <p class="eyebrow">— 能力</p>
+    <h2>一个分身，<em>替你</em>把知识接住、传下去。</h2>
+  </div>
+  <div class="bento">
+    <div class="card card-lg"><h4>每人一个有人格的分身</h4><p>不是一个全公司共享的 AI，而是每位员工各自的分身——带人格、带判断、带边界，回答像本人。</p></div>
+    <div class="card"><h4>越用越懂你</h4><p>语义 + 情景多层记忆，记住你怎么答、记住谁问过什么。</p></div>
+    <div class="card"><h4>答不出转你</h4><p>没把握不硬答，诚实声明并转交本人，补答沉淀回你的分身。</p></div>
+    <div class="card"><h4>分身可交接</h4><p>离职、休假、轮岗，分身随岗位整包移交，经验不断档。</p></div>
+    <div class="card"><h4>标注出处</h4><p>每条回答都带来源，可追溯、可信赖。</p></div>
+    <div class="card"><h4>原生问答 IM</h4><p>平台自带问答，未来可作数字员工接入飞书、钉钉。</p></div>
+  </div>
+</section>
+
+<!-- ===== 差异化对比 ===== -->
+<section class="compare" id="compare">
+  <div class="compare-head">
+    <p class="eyebrow">— 为什么是 Replica</p>
+    <h2>同样是 AI 答疑，<em>不一样</em>在哪。</h2>
+  </div>
+  <div class="compare-scroll">
+    <table class="cmp">
+      <thead>
+        <tr>
+          <th class="cmp-prod">产品</th>
+          <th>有人格的分身</th>
+          <th>越用越懂你<br><small>多层记忆</small></th>
+          <th>答不出转本人</th>
+          <th>分身可交接</th>
+          <th>3 分钟自助上手</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="cmp-self">
+          <td class="cmp-prod"><span class="cmp-name">Replica</span><span class="cmp-sub">每人一个数字分身</span></td>
+          <td><i class="yes">✓</i></td><td><i class="yes">✓</i></td><td><i class="yes">✓</i></td><td><i class="yes">✓</i></td><td><i class="yes">✓</i></td>
+        </tr>
+        <tr>
+          <td class="cmp-prod"><span class="cmp-name">Viven</span><span class="cmp-sub">对内个人分身</span></td>
+          <td><i class="yes">✓</i></td><td><i class="no">–</i></td><td><i class="no">–</i></td><td><i class="no">–</i></td><td><i class="no">–</i></td>
+        </tr>
+        <tr>
+          <td class="cmp-prod"><span class="cmp-name">Lucius</span><span class="cmp-sub">对外单一 AI</span></td>
+          <td><i class="no">–</i></td><td><i class="no">–</i></td><td><i class="yes">✓</i></td><td><i class="no">–</i></td><td><i class="yes">✓</i></td>
+        </tr>
+        <tr>
+          <td class="cmp-prod"><span class="cmp-name">Question Base</span><span class="cmp-sub">对内问答捕获</span></td>
+          <td><i class="no">–</i></td><td><i class="no">–</i></td><td><i class="yes">✓</i></td><td><i class="no">–</i></td><td><i class="no">–</i></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="cmp-foot">多层记忆「越用越懂你」与「分身可交接」，是只有 Replica 走通的两条线。</p>
+</section>
+
+<!-- ===== 常见问题 FAQ（左标题 + 右手风琴）===== -->
+<section class="faq" id="faq">
+  <div class="faq-aside">
+    <p class="eyebrow">— 常见问题</p>
+    <h2>动手前，<br>最想知道的几件事。</h2>
+  </div>
+  <div class="faq-list">
+    <details class="faq-item" open>
+      <summary>Replica 和普通问答机器人有什么不同？<span class="faq-ico"></span></summary>
+      <div class="faq-body">普通机器人是一个全公司共享的 AI，学的是"公司知道什么"。Replica 是<strong>每位员工各自一个有人格的分身</strong>，按本人的口吻和判断回答，还会越用越懂你、可随岗位交接——是"每个人是谁、会怎么答"。</div>
+    </details>
+    <details class="faq-item">
+      <summary>分身答不出来时会怎样？<span class="faq-ico"></span></summary>
+      <div class="faq-body">检索不到或没把握时，分身不会编造：它坦白说不确定，把问题转交给你本人并记为「待回答」。你补答的每一句都会沉淀回<strong>你自己的分身</strong>，下次同样的问题它就答得出。</div>
+    </details>
+    <details class="faq-item">
+      <summary>它会不会乱编、答错？<span class="faq-ico"></span></summary>
+      <div class="faq-body">回答基于你上传的知识库做检索，并<strong>标注出处</strong>，可追溯；低置信时宁可转人工也不硬答。</div>
+    </details>
+    <details class="faq-item">
+      <summary>员工离职了，他的分身怎么办？<span class="faq-ico"></span></summary>
+      <div class="faq-body">一键把分身的知识与记忆整包<strong>移交</strong>给接替的同事，离职、休假、轮岗都不再断档——这正是 Replica 想解决的核心场景之一。</div>
+    </details>
+    <details class="faq-item">
+      <summary>接入要多久？需要 IT 部署吗？<span class="faq-ico"></span></summary>
+      <div class="faq-body">3 分钟自助创建：填好岗位与人格、上传文档即可用，无需漫长的部署周期。</div>
+    </details>
+    <details class="faq-item">
+      <summary>数据安全吗？知识会泄露给别人吗？<span class="faq-ico"></span></summary>
+      <div class="faq-body">分身与知识归属于组织，按组织 / 项目组 / 角色做权限隔离，只有被授权的人能问到对应分身。</div>
+    </details>
+  </div>
+</section>
+
+<!-- ===== Footer CTA：宽幅图做全宽背景 ===== -->
+<footer class="cta" id="cta">
+  <img class="cta-bg" src="../../assets/04-classical-myth/sisyphus-wide.png" alt="" aria-hidden="true" />
+  <div class="cta-inner">
+    <p class="brand brand-lg">Replica</p>
+    <h2>让你的第一个分身，<em>活起来</em>。</h2>
+    <form class="capsule capsule-light" onsubmit="return fakeSubmit(this)">
+      <input type="email" placeholder="输入你的工作邮箱" required />
+      <button type="submit" class="btn btn-primary">加入内测</button>
+    </form>
+    <nav class="foot-links">
+      <a href="#">隐私政策</a><a href="#">服务条款</a><a href="#">文档</a>
+      <span class="copyright">© 2026 Replica</span>
+    </nav>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
