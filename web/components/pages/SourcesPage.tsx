@@ -22,6 +22,9 @@ export default function SourcesPage() {
   }, [currentId])
 
   const reload = () => listArticles(currentId).then(setDocs)
+  // 文档展示页地址：优先用环境变量域名，否则兜底当前域名
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : '')
+  const openDoc = (id: string) => window.open(`${appUrl}/doc/${id}`, '_blank')
 
   const upload = async () => {
     const title = await promptDialog('文档标题：')
@@ -72,7 +75,7 @@ export default function SourcesPage() {
             <div className="card" key={d.id}>
               <div className="ico"><IcDoc /></div>
               <div className="body">
-                <div className="t">{d.title || '未命名文档'}</div>
+                <div className="t" style={{ cursor: 'pointer' }} onClick={() => openDoc(d.id)} title="打开文档展示页">{d.title || '未命名文档'}</div>
                 <div className="d">{(d.content || '').slice(0, 80) || '（无正文）'}</div>
                 <div className="meta">
                   {d.source_url && <span>🔗 {d.source_url}</span>}
@@ -80,6 +83,7 @@ export default function SourcesPage() {
                 </div>
               </div>
               <div className="acts">
+                <span className="iconbtn" title="打开/分享文档页" onClick={() => openDoc(d.id)}><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><path d="M15 3h6v6" /><path d="M10 14 21 3" /></svg></span>
                 <span className="iconbtn" title="删除" onClick={() => remove(d)}><IcEdit /></span>
                 <div className={'toggle' + (d.status === 'enabled' ? ' on' : '')} onClick={() => toggle(d)} />
               </div>

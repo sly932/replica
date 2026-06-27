@@ -161,10 +161,39 @@ h2{font-family:var(--font-display);font-size:var(--h2-size);font-weight:600;line
 .step .arrow{position:absolute;right:calc(-1 * clamp(.4rem,.9vw,.8rem) - 2px);top:50%;transform:translateY(-50%);
   color:var(--line);font-size:.9rem;z-index:2}
 .step:last-child .arrow{display:none}
-.flow-badges{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:clamp(1rem,2.6vh,1.8rem)}
+.flow-badges{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:clamp(.7rem,1.8vh,1.3rem);justify-content:center}
 .fb{font-size:var(--small-size);font-weight:600;color:var(--accent);background:var(--accent-soft);
   border-radius:100px;padding:.4em .95em;display:flex;align-items:center;gap:.4em}
 .fb::before{content:"●";font-size:.6em}
+
+/* ---------- flywheel (animated wheel) ---------- */
+.wheel-wrap{display:flex;flex-direction:column;align-items:center;gap:clamp(.3rem,1.2vh,.8rem);margin-top:clamp(.3rem,1.2vh,.8rem)}
+.wheel-row{display:flex;align-items:center;justify-content:center;gap:clamp(.7rem,2.4vw,2rem);width:100%}
+.step-nav{display:flex;flex-direction:column;gap:clamp(.4rem,1.3vh,.85rem)}
+.sbtn{width:clamp(30px,3vw,44px);height:clamp(30px,3vw,44px);border-radius:50%;
+  border:1.6px solid var(--ink);background:transparent;color:var(--ink);
+  font-family:var(--font-display);font-weight:600;font-size:clamp(.66rem,.95vw,.95rem);
+  cursor:pointer;display:grid;place-items:center;padding:0;line-height:1;
+  transition:background .3s var(--ease),color .3s var(--ease),border-color .3s var(--ease),transform .3s var(--ease)}
+.sbtn:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
+.sbtn.active{background:var(--ink);border-color:var(--ink);color:#fff}
+.sbtn.active:hover{color:#fff}
+.wheel{width:100%;max-width:min(74vw,620px);max-height:46vh}
+.wheel svg{width:100%;height:100%;display:block;overflow:visible}
+.wnode rect{fill:var(--card);stroke:var(--line);stroke-width:1.5;transition:stroke .35s,stroke-width .35s,filter .35s}
+.wnode.center rect{fill:var(--accent);stroke:var(--accent)}
+.wnode text{font-family:var(--font-body)}
+.wnode .nt{fill:var(--ink);font-family:var(--font-display);font-weight:600;font-size:17px}
+.wnode .ns{fill:var(--muted);font-size:11px;letter-spacing:.04em}
+.wnode.center .nt{fill:#fff}.wnode.center .ns{fill:rgba(255,255,255,.82)}
+.wnode.lit rect{stroke:var(--gold);stroke-width:2.6;filter:drop-shadow(0 4px 12px rgba(176,133,58,.28))}
+.seg-base{fill:none;stroke:#cdc6b6;stroke-width:2;stroke-dasharray:5 6;stroke-linecap:round}
+.seg-flow{fill:none;stroke:#2f7fc1;stroke-width:3.6;opacity:0;stroke-linecap:round}
+.wdot{fill:#2f7fc1;filter:drop-shadow(0 0 7px rgba(47,127,193,.85));opacity:0}
+.wcap{text-align:center;min-height:3em;display:flex;flex-direction:column;gap:.15em;justify-content:center}
+.wcap .wc-step{font-size:var(--small-size);font-weight:700;color:var(--accent);letter-spacing:.05em}
+.wcap .wc-step.star{color:var(--gold)}
+.wcap .wc-desc{font-size:clamp(.7rem,.95vw,.88rem);color:var(--ink-soft);line-height:1.4}
 
 /* =========================================================
    SLIDE 5 — ARCHITECTURE
@@ -183,6 +212,28 @@ h2{font-family:var(--font-display);font-size:var(--h2-size);font-weight:600;line
 .chip{font-size:var(--small-size);color:var(--ink-soft);background:var(--bg-soft);border:1px solid var(--line);
   border-radius:8px;padding:.4em .8em;font-weight:500}
 .chip b{color:var(--accent)}
+
+/* ---------- tech stack (slide 5, redesigned) ---------- */
+.tech-wrap{display:grid;grid-template-columns:.82fr 1.18fr;gap:clamp(1rem,2.6vw,2.3rem);align-items:stretch;margin-top:clamp(.6rem,1.8vh,1.4rem)}
+.tech-aside{background:linear-gradient(150deg,var(--accent) 0%,#314f43 100%);color:#fff;border-radius:18px;
+  padding:clamp(1.1rem,2.6vw,2rem);display:flex;flex-direction:column;justify-content:center}
+.tech-aside .ta-k{font-size:var(--small-size);letter-spacing:.2em;text-transform:uppercase;color:var(--gold-soft);font-weight:700;margin-bottom:.8em}
+.tech-aside .ta-big{font-family:var(--font-display);font-size:clamp(1.25rem,2.4vw,2.1rem);line-height:1.18;font-weight:600}
+.tech-aside .ta-big em{font-style:italic;color:var(--gold-soft)}
+.tech-aside .ta-eq{margin-top:.85em;font-size:clamp(.76rem,1.05vw,1rem);color:rgba(255,255,255,.9);line-height:1.6}
+.tech-aside .ta-note{margin-top:1.05em;padding-top:.85em;border-top:1px solid rgba(255,255,255,.25);
+  font-size:var(--small-size);color:rgba(255,255,255,.8);line-height:1.55}
+.tech-list{display:flex;flex-direction:column;gap:clamp(.38rem,1vh,.7rem)}
+.trow{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;gap:.15em .9rem;align-items:center;
+  background:var(--card);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:11px;
+  padding:clamp(.5rem,1.1vw,.82rem) clamp(.65rem,1.3vw,1.05rem);transition:transform .35s var(--ease),box-shadow .35s var(--ease)}
+.slide.visible .trow:hover{transform:translateX(5px);box-shadow:0 10px 24px rgba(43,42,39,.07)}
+.trow .tnum{grid-row:span 2;font-family:var(--font-display);font-weight:600;color:var(--accent);
+  font-size:clamp(1.05rem,1.7vw,1.6rem);opacity:.45;width:1.5em;text-align:center}
+.trow .tmain{display:flex;align-items:baseline;gap:.55em;flex-wrap:wrap}
+.trow .ten{font-family:var(--font-display);font-weight:600;font-size:clamp(.85rem,1.15vw,1.1rem);color:var(--ink)}
+.trow .tcn{font-size:clamp(.66rem,.9vw,.82rem);color:var(--accent);font-weight:700}
+.trow .tdesc{grid-column:2;font-size:clamp(.64rem,.88vw,.8rem);color:var(--muted);line-height:1.45}
 
 /* =========================================================
    SLIDE 6 — BUSINESS
@@ -210,7 +261,7 @@ h2{font-family:var(--font-display);font-size:var(--h2-size);font-weight:600;line
    SLIDE 7 — ROADMAP / CLOSE
    ========================================================= */
 .close{justify-content:center}
-.road{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(.5rem,1.1vw,.9rem);margin:clamp(1rem,2.6vh,2rem) 0}
+.road{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(.5rem,1.1vw,.9rem);margin:clamp(.8rem,2.2vh,1.6rem) 0}
 .rstep{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:clamp(.6rem,1.3vw,1.1rem);position:relative}
 .rstep .rn{font-family:var(--font-display);font-weight:600;color:var(--gold);font-size:clamp(.7rem,.95vw,.9rem);margin-bottom:.3em}
 .rstep .rt{font-weight:700;font-size:clamp(.74rem,1vw,.95rem);margin-bottom:.15em}
@@ -252,7 +303,7 @@ h2{font-family:var(--font-display);font-size:var(--h2-size);font-weight:600;line
 /* ---------- responsive ---------- */
 @media (max-height:720px){:root{--slide-padding:clamp(1rem,3vw,2.4rem)}}
 @media (max-width:860px){
-  .cap-wrap,.biz{grid-template-columns:1fr}
+  .cap-wrap,.biz,.tech-wrap{grid-template-columns:1fr}
   .cap-aside,.roi-hero{display:none}
   .flow{flex-direction:column}.step .arrow{display:none}
   .road{grid-template-columns:repeat(2,1fr)}
@@ -261,6 +312,8 @@ h2{font-family:var(--font-display);font-size:var(--h2-size);font-weight:600;line
   .pain-grid{grid-template-columns:1fr}
   .arch-row{flex-direction:column}
   .dots{display:none}
+  .wheel-row{flex-direction:column-reverse}
+  .step-nav{flex-direction:row}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.2s!important}
@@ -370,18 +423,64 @@ h2{font-family:var(--font-display);font-size:var(--h2-size);font-weight:600;line
   <div class="slide-content">
     <div class="kicker reveal">产品完成度 · 评委可自己上手</div>
     <h2 class="reveal">一条真跑通的飞轮闭环</h2>
-    <div class="flow stagger">
-      <div class="step"><div class="sn">1</div><div class="st">问命中</div><div class="sd">RAG 检索 + 人格化回答</div><div class="arrow">→</div></div>
-      <div class="step"><div class="sn">2</div><div class="st">诚实 + 转人工</div><div class="sd">答不出不胡说，记为待回答</div><div class="arrow">→</div></div>
-      <div class="step"><div class="sn">3</div><div class="st">真人补答</div><div class="sd">本人一句话答 → 一键沉淀</div><div class="arrow">→</div></div>
-      <div class="step key"><div class="sn">4</div><div class="st">闭环命中 ★</div><div class="sd">再问同问题——这次答出来了</div><div class="arrow">→</div></div>
-      <div class="step"><div class="sn">5</div><div class="st">越用越懂你</div><div class="sd">带着记忆回答下一个问题</div></div>
+    <div class="wheel-wrap reveal">
+     <div class="wheel-row">
+      <div class="step-nav" role="tablist" aria-label="飞轮步骤导航">
+        <button class="sbtn" data-i="0" aria-label="第 1 步 问命中">I</button>
+        <button class="sbtn" data-i="1" aria-label="第 2 步 诚实转人工">II</button>
+        <button class="sbtn" data-i="2" aria-label="第 3 步 真人补答沉淀">III</button>
+        <button class="sbtn" data-i="3" aria-label="第 4 步 闭环命中">IV</button>
+        <button class="sbtn" data-i="4" aria-label="第 5 步 越用越懂你">V</button>
+      </div>
+      <div class="wheel">
+        <svg viewBox="0 0 680 440" role="img" aria-label="Replica 五步飞轮：提问者→分身→真人→分身→回答，记忆回流">
+          <!-- ===== connector base lines (gray dashed) ===== -->
+          <path class="seg-base" d="M340,76 L340,188"/>
+          <path class="seg-base" d="M420,206 Q467,150 515,206"/>
+          <path class="seg-base" d="M515,234 Q467,290 420,234"/>
+          <path class="seg-base" d="M340,252 L340,364"/>
+          <path class="seg-base" d="M165,220 L260,220"/>
+          <!-- ===== flow lines (blue, animated) ===== -->
+          <path class="seg-flow" id="s1" d="M340,76 L340,188"/>
+          <path class="seg-flow" id="s2" d="M420,206 Q467,150 515,206"/>
+          <path class="seg-flow" id="s3" d="M515,234 Q467,290 420,234"/>
+          <path class="seg-flow" id="s4" d="M340,252 L340,364"/>
+          <path class="seg-flow" id="s5" d="M165,220 L260,220"/>
+          <!-- ===== nodes ===== -->
+          <g class="wnode" id="n-query">
+            <rect x="265" y="20" width="150" height="56" rx="13"/>
+            <text text-anchor="middle"><tspan class="nt" x="340" y="44">提问者</tspan><tspan class="ns" x="340" y="62">Query · 新人 / 业务方</tspan></text>
+          </g>
+          <g class="wnode center" id="n-avatar">
+            <rect x="258" y="186" width="164" height="68" rx="15"/>
+            <text text-anchor="middle"><tspan class="nt" x="340" y="216" style="font-size:19px">分身 Replica</tspan><tspan class="ns" x="340" y="236">RAG + 人格 + 记忆</tspan></text>
+          </g>
+          <g class="wnode" id="n-human">
+            <rect x="515" y="192" width="150" height="56" rx="13"/>
+            <text text-anchor="middle"><tspan class="nt" x="590" y="216">真人</tspan><tspan class="ns" x="590" y="234">本人 / 专家</tspan></text>
+          </g>
+          <g class="wnode" id="n-answer">
+            <rect x="265" y="364" width="150" height="56" rx="13"/>
+            <text text-anchor="middle"><tspan class="nt" x="340" y="388">回答</tspan><tspan class="ns" x="340" y="406">Answer 出口</tspan></text>
+          </g>
+          <g class="wnode" id="n-memory">
+            <rect x="15" y="192" width="150" height="56" rx="13"/>
+            <text text-anchor="middle"><tspan class="nt" x="90" y="216">记忆</tspan><tspan class="ns" x="90" y="234">越用越懂你</tspan></text>
+          </g>
+          <!-- ===== traveling dot ===== -->
+          <circle class="wdot" id="wdot" r="6.5" cx="340" cy="76"/>
+        </svg>
+      </div>
+     </div>
+      <div class="wcap" id="wcap" aria-live="polite">
+        <div class="wc-step">第 1 步 · 问命中</div>
+        <div class="wc-desc">提问者把问题发给分身 → RAG 检索 + 人格化回答</div>
+      </div>
     </div>
     <div class="flow-badges reveal">
       <span class="fb">公网 Demo 链接</span>
       <span class="fb">GitHub 开源</span>
       <span class="fb">开箱即用 · 自助上手</span>
-      <span class="fb">可选收尾：一键「分身转移」</span>
     </div>
   </div>
   <div class="foot">
@@ -393,27 +492,46 @@ h2{font-family:var(--font-display);font-size:var(--h2-size);font-weight:600;line
 <!-- ===================== 5 · ARCHITECTURE ===================== -->
 <section class="slide">
   <div class="slide-content">
-    <div class="kicker reveal">技术深度 · 不止是简单调 API</div>
-    <h2 class="reveal">RAG + Agent 工具设计 + 双路自进化 + 多层记忆</h2>
-    <div class="arch stagger">
-      <div class="arch-row">
-        <div class="arch-box"><div class="ah">前后端</div><div class="at">Next.js</div><div class="ad">App Router + Route Handlers 当 API</div></div>
-        <div class="arch-box"><div class="ah">数据 / 向量 / Auth</div><div class="at">Supabase</div><div class="ad">Postgres + pgvector + Storage</div></div>
-        <div class="arch-box"><div class="ah">部署</div><div class="at">Vercel</div><div class="ad">公网链接，满足「可访问 Demo」硬交付</div></div>
+    <div class="kicker reveal">技术深度 · Agent 工程，而非简单调 API</div>
+    <h2 class="reveal">分身背后的 Agent 工程栈</h2>
+    <div class="tech-wrap">
+      <div class="tech-aside reveal">
+        <div class="ta-k">Core</div>
+        <div class="ta-big">分身 = <em>一个被工程化的 Agent</em></div>
+        <div class="ta-eq">人格系统提示（人格 + 边界）<br>＋ 单一职责工具集<br>＋ 上下文工程 ＋ 多层记忆</div>
+        <div class="ta-note">立项认知：Agent 负责重复性问题，把最终判断交还给人。</div>
       </div>
-      <div class="arch-row">
-        <div class="arch-box hero"><div class="ah">分身 = Agent</div><div class="at">系统提示（人格 + 边界）+ 工具集</div><div class="ad">知识检索 / 记忆检索 / 答疑沉淀 / 待回答推送</div></div>
-      </div>
-      <div class="eng-row reveal">
-        <span class="chip"><b>原文表 / 向量表分离</b>：chunks 召回再回查 articles 取出处</span>
-        <span class="chip"><b>答不出边界</b>：检索置信不足时诚实声明并转人工</span>
-        <span class="chip"><b>记忆链路</b>：对话自动抽取语义记忆，回答时召回</span>
-        <span class="chip"><b>OpenAPI 批量灌库</b>：脚本建组织 / 上传文档 / 触发向量化</span>
+      <div class="tech-list stagger">
+        <div class="trow">
+          <div class="tnum">01</div>
+          <div class="tmain"><span class="ten">Agent Architecture</span><span class="tcn">架构选型</span></div>
+          <div class="tdesc">单 Agent + ReAct 式可控多步循环；纯问答 1 步直答，深度推理才放开 step 预算（双路自进化第二路）</div>
+        </div>
+        <div class="trow">
+          <div class="tnum">02</div>
+          <div class="tmain"><span class="ten">Context Engineering</span><span class="tcn">上下文管理</span></div>
+          <div class="tdesc">分层拼装：人格 → 角色边界 → 检索片段(带出处) → 召回记忆 → 对话历史；按 token 预算裁剪，原文按需回查展开</div>
+        </div>
+        <div class="trow">
+          <div class="tnum">03</div>
+          <div class="tmain"><span class="ten">Tool Design</span><span class="tcn">工具设计</span></div>
+          <div class="tdesc">四个单一职责工具：知识检索 · 记忆检索 · 答疑沉淀 · 转人工待回答；返回结构化，「答不出边界」由检索置信 + 工具结果共同判定</div>
+        </div>
+        <div class="trow">
+          <div class="tnum">04</div>
+          <div class="tmain"><span class="ten">Compaction</span><span class="tcn">上下文压缩</span></div>
+          <div class="tdesc">长程多步循环中工具输出堆满窗口 → 达阈值即把历史轮次/冗长工具结果摘要成紧凑状态：保留目标·关键事实·已定决策，丢弃原始噪声，让 agent 在 token 预算内持续跑而不丢线索</div>
+        </div>
+        <div class="trow">
+          <div class="tnum">05</div>
+          <div class="tmain"><span class="ten">Memory System</span><span class="tcn">多层记忆</span></div>
+          <div class="tdesc">语义记忆(事实/偏好/判断) + 情景记忆(谁问过什么、怎么答)；向量召回 + 时间衰减，回答时按相关性注入——越用越懂你</div>
+        </div>
       </div>
     </div>
   </div>
   <div class="foot">
-    <div class="sources">数据表：replicas · articles · chunks · memories · pending_qs · knowledge_items</div>
+    <div class="sources">原文表 / 向量表分离 · chunks 召回回查 articles 取出处 · 答不出诚实转人工</div>
     <div class="pageno"><span class="brandmark">Replica</span> · 05 / 07</div>
   </div>
 </section>
@@ -436,7 +554,7 @@ h2{font-family:var(--font-display);font-size:var(--h2-size);font-weight:600;line
         </div>
       </div>
       <div class="reveal">
-        <div class="biz-h">差异化 · 避开「换皮」</div>
+        <div class="biz-h">与其他竞品对比</div>
         <table class="cmp">
           <thead><tr><th>维度</th><th>Viven</th><th>Lucius</th><th>QB</th><th class="me">Replica</th></tr></thead>
           <tbody>
@@ -451,9 +569,15 @@ h2{font-family:var(--font-display);font-size:var(--h2-size);font-weight:600;line
         </div>
       </div>
     </div>
+    <div class="src-list reveal" style="margin-top:clamp(.5rem,1.4vh,.9rem)">
+      <div class="sl-head">参考来源（原文）</div>
+      <div class="src-line"><span class="sn">[1]</span><b>McKinsey《The Social Economy》</b>：<i>"28 hours — Time each week spent by knowledge workers writing e-mails, searching for information, and collaborating internally."</i>（$1,240 万与 40% 回收比例为基于该类工时占比的估算）</div>
+      <div class="src-line"><span class="sn">[2]</span><b>Gallup《This Fixable Problem Costs U.S. Businesses $1 Trillion》</b>：<i>"The cost of replacing an individual employee can range from one-half to two times the employee's annual salary."</i>（"$1 trillion … every year due to voluntary turnover"）</div>
+      <div class="src-line"><span class="sn">[3]</span><b>Gartner（经 CX Today 报道）</b>：<i>"bots will reduce agent labor costs by as much as $80BN in 2026."</i></div>
+    </div>
   </div>
   <div class="foot">
-    <div class="sources"><b>参考来源：</b>[1] APQC (2021) + Panopto 报告（找信息/重复答疑工时），节约比例为基于权威占比的估算　[2] Gallup《This Fixable Problem Costs U.S. Businesses $1 Trillion》　[3] Gartner 新闻稿（2022）</div>
+    <div class="sources"></div>
     <div class="pageno"><span class="brandmark">Replica</span> · 06 / 07</div>
   </div>
 </section>
@@ -466,7 +590,9 @@ h2{font-family:var(--font-display);font-size:var(--h2-size);font-weight:600;line
       <div class="rstep"><div class="rn">01</div><div class="rt">组织级分身</div><div class="rd">从个人分身升到组织 brain</div></div>
       <div class="rstep"><div class="rn">02</div><div class="rt">关系记忆</div><div class="rd">维护「提问者 ↔ 回答者」的关系</div></div>
       <div class="rstep"><div class="rn">03</div><div class="rt">更个性化</div><div class="rd">多维用户画像，回答带更多上下文</div></div>
-      <div class="rstep"><div class="rn">04</div><div class="rt">Proactive</div><div class="rd">主动行为，提升效率与黏性</div></div>
+      <div class="rstep"><div class="rn">04</div><div class="rt">Proactive</div><div class="rd">主动出击，提升效率与黏性</div></div>
+      <div class="rstep"><div class="rn">05</div><div class="rt">IM 接入</div><div class="rd">作为数字员工进驻飞书 / 钉钉 / 企微</div></div>
+      <div class="rstep"><div class="rn">06</div><div class="rt">企业级安全</div><div class="rd">角色/组织知识权限 · 审计 · 私有化部署</div></div>
     </div>
     <h1 class="close-vision reveal">让每个人的经验<br><em>可沉淀、可交接、可流动。</em></h1>
     <div class="close-links reveal">
@@ -523,6 +649,100 @@ h2{font-family:var(--font-display);font-size:var(--h2-size);font-weight:600;line
     if(e.key==='Home'){e.preventDefault();go(0);}
     if(e.key==='End'){e.preventDefault();go(slides.length-1);}
   });
+})();
+
+/* ===========================================
+   FLYWHEEL ANIMATION — blue dot flowing along
+   each dashed connector, one segment per step,
+   looping forever. Respects reduced-motion.
+   =========================================== */
+(function(){
+  const dot=document.getElementById('wdot');
+  const cap=document.getElementById('wcap');
+  if(!dot) return;
+
+  // step = which flow path lights up + which nodes glow + caption
+  const steps=[
+    {seg:'s1',rev:false,nodes:['n-query','n-avatar'],   step:'第 1 步 · 问命中',          desc:'提问者把问题发给分身 → RAG 检索 + 人格化回答'},
+    {seg:'s2',rev:false,nodes:['n-avatar','n-human'],   step:'第 2 步 · 诚实转人工',      desc:'分身答不出就不胡说 → 转给真人，并记为「待回答」'},
+    {seg:'s3',rev:false,nodes:['n-human','n-avatar'],   step:'第 3 步 · 真人补答 → 沉淀', desc:'真人一句话回答 → 一键沉淀回分身的知识库'},
+    {seg:'s4',rev:false,nodes:['n-avatar','n-answer'],  step:'第 4 步 · 闭环命中 ★',      desc:'再问同一问题——这次分身自己答出来了',star:true},
+    {seg:'s5',rev:false,nodes:['n-memory','n-avatar'],  step:'第 5 步 · 越用越懂你',      desc:'对话沉淀的记忆回流分身，下次回答更懂你'}
+  ];
+
+  const flows={};
+  steps.forEach(s=>{const p=document.getElementById(s.seg);flows[s.seg]={el:p,len:p.getTotalLength()};});
+  const navBtns=[...document.querySelectorAll('.step-nav .sbtn')];
+
+  function setNodes(active){
+    document.querySelectorAll('.wnode').forEach(n=>n.classList.remove('lit'));
+    active.forEach(id=>document.getElementById(id)&&document.getElementById(id).classList.add('lit'));
+  }
+  function setNav(i){ navBtns.forEach((b,j)=>b.classList.toggle('active',j===i)); }
+  function setCap(s){
+    cap.innerHTML='<div class="wc-step'+(s.star?' star':'')+'">'+s.step+'</div><div class="wc-desc">'+s.desc+'</div>';
+  }
+  function resetFlows(){
+    steps.forEach(s=>{const f=flows[s.seg].el;f.style.transition='none';f.style.opacity='0';});
+    dot.style.opacity='0';
+  }
+  const easeInOut=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+
+  let token=0; // bumped on manual jump to cancel the in-flight chain
+
+  function animateSeg(s,myToken){
+    return new Promise(res=>{
+      const {el,len}=flows[s.seg];
+      el.style.transition='none';
+      el.style.strokeDasharray=len;
+      el.style.strokeDashoffset=len;
+      el.style.opacity='1';
+      dot.style.opacity='1';
+      setNodes(s.nodes);
+      const dur=1150; let start=null;
+      function frame(ts){
+        if(myToken!==token){res(false);return;} // cancelled by a jump
+        if(start===null)start=ts;
+        const p=Math.min((ts-start)/dur,1), e=easeInOut(p);
+        el.style.strokeDashoffset=len*(1-e);
+        const pt=el.getPointAtLength(len*e);
+        dot.setAttribute('cx',pt.x); dot.setAttribute('cy',pt.y);
+        if(p<1){requestAnimationFrame(frame);}
+        else{
+          el.style.transition='opacity .5s ease'; el.style.opacity='0';
+          dot.style.opacity='0';
+          setTimeout(()=>res(true),430);
+        }
+      }
+      requestAnimationFrame(frame);
+    });
+  }
+
+  function play(i){
+    const myToken=token;
+    setNav(i); setCap(steps[i]);
+    animateSeg(steps[i],myToken).then(done=>{
+      if(!done) return;                       // a jump took over
+      const last=i===steps.length-1;
+      setTimeout(()=>{ if(myToken===token) play(last?0:i+1); }, last?650:300);
+    });
+  }
+
+  function jump(i){ token++; resetFlows(); play(i); } // cancel current, start at i
+
+  navBtns.forEach((b,i)=>b.addEventListener('click',()=>jump(i)));
+
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){
+    steps.forEach(s=>{flows[s.seg].el.style.opacity='.4';});
+    setNodes(['n-query','n-avatar']); setNav(0); setCap(steps[0]); dot.style.opacity='0';
+    navBtns.forEach((b,i)=>b.addEventListener('click',()=>{ // still allow manual step preview
+      resetFlows(); flows[steps[i].seg].el.style.transition='none'; flows[steps[i].seg].el.style.opacity='.7';
+      setNodes(steps[i].nodes); setNav(i); setCap(steps[i]);
+    }));
+  }else{
+    play(0);
+  }
 })();
 </script>
 </body>
