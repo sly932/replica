@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Replica · 员工数字分身平台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;700&display=swap" rel="stylesheet">
+<style>
+/* ===========================================
+   THEME — 淡雅浅色（warm cream / sage / amber）
+   =========================================== */
+:root{
+  --bg:#F6F3EC;            /* 温润米白 */
+  --bg-soft:#FBFAF5;
+  --card:#FFFFFF;
+  --ink:#2B2A27;           /* 墨色正文 */
+  --ink-soft:#54514A;
+  --muted:#857F74;
+  --line:#E7E0D2;
+  --accent:#3F6B5C;        /* 深鼠尾草绿 */
+  --accent-soft:#E9F0EB;
+  --gold:#B0853A;          /* 沉静琥珀 */
+  --gold-soft:#F4EBD8;
+  --red:#A9503C;           /* 砖红，用于痛点数字 */
+  --red-soft:#F3E4DF;
+
+  --font-display:'Fraunces','Noto Serif SC',serif;
+  --font-body:'Noto Sans SC','PingFang SC',system-ui,sans-serif;
+
+  --title-size:clamp(2rem,5.5vw,4.4rem);
+  --h2-size:clamp(1.4rem,3.4vw,2.6rem);
+  --h3-size:clamp(1rem,1.7vw,1.4rem);
+  --body-size:clamp(0.8rem,1.15vw,1.05rem);
+  --small-size:clamp(0.62rem,0.85vw,0.8rem);
+  --tiny-size:clamp(0.55rem,0.72vw,0.7rem);
+
+  --slide-padding:clamp(1.4rem,4.5vw,4.5rem);
+  --gap:clamp(0.6rem,1.6vw,1.5rem);
+
+  --ease:cubic-bezier(0.16,1,0.3,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{height:100%;scroll-behavior:smooth;scroll-snap-type:y mandatory}
+body{
+  height:100%;overflow-x:hidden;
+  font-family:var(--font-body);background:var(--bg);color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---------- slide shell ---------- */
+.slide{
+  width:100vw;height:100vh;height:100dvh;overflow:hidden;
+  scroll-snap-align:start;position:relative;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:var(--slide-padding);
+}
+.slide-content{flex:1;display:flex;flex-direction:column;justify-content:center;max-height:100%;overflow:hidden}
+
+/* subtle paper grain + corner wash */
+.slide::before{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse at 88% 8%, rgba(63,107,92,0.06) 0%, transparent 45%),
+    radial-gradient(ellipse at 8% 92%, rgba(176,133,58,0.06) 0%, transparent 45%);
+}
+.slide > *{position:relative;z-index:1}
+
+/* ---------- shared type ---------- */
+.kicker{
+  font-size:var(--small-size);letter-spacing:.28em;text-transform:uppercase;
+  color:var(--accent);font-weight:700;margin-bottom:.7em;display:flex;align-items:center;gap:.6em;
+}
+.kicker::before{content:"";width:clamp(18px,2vw,34px);height:2px;background:var(--accent);display:inline-block}
+h1{font-family:var(--font-display);font-size:var(--title-size);font-weight:600;line-height:1.05;letter-spacing:-0.01em}
+h2{font-family:var(--font-display);font-size:var(--h2-size);font-weight:600;line-height:1.12;letter-spacing:-0.01em}
+.lead{font-size:var(--body-size);color:var(--ink-soft);line-height:1.7;max-width:60ch}
+.num-accent{color:var(--red);font-weight:700;font-family:var(--font-display)}
+
+/* ---------- footer / page no ---------- */
+.foot{position:absolute;left:var(--slide-padding);right:var(--slide-padding);bottom:clamp(.7rem,1.6vh,1.4rem);
+  display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;z-index:2}
+.sources{font-size:var(--tiny-size);color:var(--muted);line-height:1.55;max-width:78%}
+.sources b{color:var(--ink-soft);font-weight:700}
+.pageno{font-size:var(--tiny-size);color:var(--muted);letter-spacing:.18em;white-space:nowrap}
+.brandmark{font-family:var(--font-display);font-weight:600;color:var(--accent)}
+
+/* =========================================================
+   SLIDE 1 — COVER
+   ========================================================= */
+.cover{justify-content:center}
+.cover .logo-row{display:flex;align-items:center;gap:.7rem;margin-bottom:clamp(1rem,3vh,2.2rem)}
+.cover .dot{width:clamp(10px,1.1vw,15px);height:clamp(10px,1.1vw,15px);border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,var(--accent),#2c4d42);box-shadow:0 0 0 4px var(--accent-soft)}
+.cover .brand{font-family:var(--font-display);font-weight:600;font-size:clamp(1.1rem,1.7vw,1.5rem);letter-spacing:.02em}
+.cover h1{margin-bottom:.55em}
+.cover h1 .em{font-style:italic;color:var(--accent)}
+.slogan{font-size:clamp(.9rem,1.5vw,1.35rem);color:var(--ink-soft);line-height:1.65;max-width:40ch;margin-bottom:clamp(1.2rem,3.4vh,2.6rem)}
+.slogan b{color:var(--gold)}
+.cover-tags{display:flex;flex-wrap:wrap;gap:.6rem}
+.tag{font-size:var(--small-size);color:var(--ink-soft);background:var(--card);border:1px solid var(--line);
+  padding:.45em 1em;border-radius:100px;font-weight:500}
+.tag.solid{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* =========================================================
+   SLIDE 2 — PAIN GRID
+   ========================================================= */
+.pain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(.55rem,1.1vw,1rem);margin-top:clamp(.8rem,2vh,1.6rem)}
+.pain-card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:clamp(.7rem,1.5vw,1.25rem);display:flex;flex-direction:column;gap:.35em;
+  border-top:3px solid var(--red);transition:transform .4s var(--ease),box-shadow .4s var(--ease)}
+.slide.visible .pain-card:hover{transform:translateY(-4px);box-shadow:0 14px 30px rgba(43,42,39,.08)}
+.pain-card .pc-head{display:flex;align-items:baseline;gap:.45em}
+.pain-card .pc-no{font-family:var(--font-display);font-weight:600;color:var(--red);font-size:clamp(.85rem,1.1vw,1.05rem);opacity:.55}
+.pain-card .pc-title{font-weight:700;font-size:clamp(.82rem,1.15vw,1.05rem);color:var(--ink)}
+.pain-card .pc-data{font-size:clamp(.68rem,.95vw,.85rem);color:var(--ink-soft);line-height:1.55}
+.pain-card .pc-data .hl{color:var(--red);font-weight:700}
+.pain-card .pc-data sup{color:var(--accent);font-weight:700;font-size:.85em}
+/* per-source reference list (slide 2) */
+.src-list{margin-top:clamp(.55rem,1.5vh,1rem);border-top:1px solid var(--line);
+  padding-top:clamp(.4rem,1vh,.7rem);display:flex;flex-direction:column;gap:clamp(.1rem,.45vh,.3rem)}
+.src-list .sl-head{font-size:var(--tiny-size);font-weight:700;color:var(--ink-soft);letter-spacing:.04em;margin-bottom:.15em}
+.src-line{font-size:clamp(.5rem,.72vw,.68rem);color:var(--muted);line-height:1.4}
+.src-line .sn{color:var(--accent);font-weight:700;margin-right:.35em}
+.src-line b{color:var(--ink-soft);font-weight:600}
+.src-line i{font-style:italic;color:var(--muted)}
+
+/* =========================================================
+   SLIDE 3 — CAPABILITIES
+   ========================================================= */
+.cap-wrap{display:grid;grid-template-columns:1.1fr 1fr;gap:clamp(1rem,3vw,3rem);align-items:center}
+.cap-list{display:flex;flex-direction:column;gap:clamp(.5rem,1.3vh,1rem)}
+.cap{display:flex;gap:.9rem;align-items:flex-start;background:var(--card);border:1px solid var(--line);
+  border-radius:12px;padding:clamp(.6rem,1.3vw,1rem) clamp(.7rem,1.4vw,1.15rem)}
+.cap .ci{flex:none;width:clamp(28px,2.6vw,40px);height:clamp(28px,2.6vw,40px);border-radius:9px;
+  background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;
+  font-family:var(--font-display);font-weight:600;font-size:clamp(.85rem,1.2vw,1.15rem)}
+.cap .ct{font-weight:700;font-size:clamp(.82rem,1.15vw,1.05rem);margin-bottom:.15em}
+.cap .cd{font-size:clamp(.68rem,.92vw,.82rem);color:var(--muted);line-height:1.5}
+.cap-aside{align-self:stretch;display:flex;flex-direction:column;justify-content:center;
+  background:linear-gradient(150deg,var(--accent) 0%,#335648 100%);color:#fff;border-radius:18px;
+  padding:clamp(1.2rem,3vw,2.4rem)}
+.cap-aside .qa{font-family:var(--font-display);font-size:clamp(1.05rem,1.9vw,1.7rem);line-height:1.35;font-weight:500}
+.cap-aside .qa em{font-style:italic;color:var(--gold-soft)}
+.cap-aside .qb{margin-top:1em;font-size:var(--small-size);color:rgba(255,255,255,.78);line-height:1.6}
+
+/* =========================================================
+   SLIDE 4 — FLYWHEEL
+   ========================================================= */
+.flow{display:flex;align-items:stretch;gap:clamp(.4rem,.9vw,.8rem);margin-top:clamp(1rem,2.6vh,2rem)}
+.step{flex:1;background:var(--card);border:1px solid var(--line);border-radius:13px;
+  padding:clamp(.6rem,1.2vw,1rem);display:flex;flex-direction:column;gap:.3em;position:relative}
+.step .sn{width:clamp(22px,2vw,30px);height:clamp(22px,2vw,30px);border-radius:50%;
+  background:var(--accent);color:#fff;display:grid;place-items:center;font-family:var(--font-display);
+  font-weight:600;font-size:clamp(.72rem,1vw,.95rem);margin-bottom:.2em}
+.step.key{border-color:var(--gold);background:var(--gold-soft)}
+.step.key .sn{background:var(--gold)}
+.step .st{font-weight:700;font-size:clamp(.74rem,1vw,.95rem)}
+.step .sd{font-size:clamp(.62rem,.85vw,.78rem);color:var(--muted);line-height:1.45}
+.step .arrow{position:absolute;right:calc(-1 * clamp(.4rem,.9vw,.8rem) - 2px);top:50%;transform:translateY(-50%);
+  color:var(--line);font-size:.9rem;z-index:2}
+.step:last-child .arrow{display:none}
+.flow-badges{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:clamp(1rem,2.6vh,1.8rem)}
+.fb{font-size:var(--small-size);font-weight:600;color:var(--accent);background:var(--accent-soft);
+  border-radius:100px;padding:.4em .95em;display:flex;align-items:center;gap:.4em}
+.fb::before{content:"●";font-size:.6em}
+
+/* =========================================================
+   SLIDE 5 — ARCHITECTURE
+   ========================================================= */
+.arch{display:flex;flex-direction:column;gap:clamp(.6rem,1.4vh,1.1rem);margin-top:clamp(.8rem,2vh,1.5rem)}
+.arch-row{display:flex;gap:clamp(.5rem,1vw,.9rem)}
+.arch-box{flex:1;background:var(--card);border:1px solid var(--line);border-radius:11px;
+  padding:clamp(.55rem,1.1vw,.9rem) clamp(.6rem,1.2vw,1rem)}
+.arch-box .ah{font-size:var(--tiny-size);letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:.3em}
+.arch-box .at{font-weight:700;font-size:clamp(.74rem,1vw,.95rem);margin-bottom:.1em}
+.arch-box .ad{font-size:clamp(.62rem,.85vw,.78rem);color:var(--muted);line-height:1.45}
+.arch-box.hero{background:linear-gradient(140deg,var(--accent),#335648);color:#fff;border-color:var(--accent)}
+.arch-box.hero .ah{color:var(--gold-soft)}
+.arch-box.hero .ad{color:rgba(255,255,255,.8)}
+.eng-row{display:flex;flex-wrap:wrap;gap:.5rem}
+.chip{font-size:var(--small-size);color:var(--ink-soft);background:var(--bg-soft);border:1px solid var(--line);
+  border-radius:8px;padding:.4em .8em;font-weight:500}
+.chip b{color:var(--accent)}
+
+/* =========================================================
+   SLIDE 6 — BUSINESS
+   ========================================================= */
+.biz{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1rem,2.6vw,2.4rem);align-items:start;margin-top:clamp(.6rem,1.6vh,1.2rem)}
+.roi-hero{background:linear-gradient(150deg,var(--gold) 0%,#9a7330 100%);color:#fff;border-radius:18px;
+  padding:clamp(1rem,2.4vw,1.8rem)}
+.roi-hero .rh-label{font-size:var(--small-size);letter-spacing:.1em;color:var(--gold-soft);font-weight:600;margin-bottom:.5em}
+.roi-hero .rh-big{font-family:var(--font-display);font-weight:600;font-size:clamp(1.7rem,3.6vw,3rem);line-height:1.02}
+.roi-hero .rh-sub{margin-top:.5em;font-size:var(--small-size);color:rgba(255,255,255,.85);line-height:1.6}
+.buyers{display:flex;flex-direction:column;gap:.55rem;margin-top:clamp(.7rem,1.6vh,1.1rem)}
+.buyer{display:flex;gap:.7rem;align-items:flex-start;font-size:clamp(.66rem,.9vw,.82rem);color:var(--ink-soft);line-height:1.5}
+.buyer b{color:var(--ink);font-weight:700}
+.buyer .bdot{flex:none;margin-top:.35em;width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.cmp{width:100%;border-collapse:collapse;font-size:clamp(.6rem,.88vw,.8rem)}
+.cmp th,.cmp td{text-align:left;padding:clamp(.32em,.7vw,.55em) clamp(.3em,.6vw,.6em);border-bottom:1px solid var(--line)}
+.cmp thead th{font-size:var(--tiny-size);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.cmp tbody th{font-weight:600;color:var(--ink-soft);font-size:clamp(.62rem,.85vw,.78rem)}
+.cmp .me{background:var(--accent-soft);color:var(--accent);font-weight:700;border-radius:6px}
+.cmp td.x{color:#bdb6a8}
+.cmp td.ok{color:var(--accent);font-weight:700}
+.biz-h{margin-bottom:.3em;font-size:var(--h3-size);font-weight:700;font-family:var(--font-display)}
+
+/* =========================================================
+   SLIDE 7 — ROADMAP / CLOSE
+   ========================================================= */
+.close{justify-content:center}
+.road{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(.5rem,1.1vw,.9rem);margin:clamp(1rem,2.6vh,2rem) 0}
+.rstep{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:clamp(.6rem,1.3vw,1.1rem);position:relative}
+.rstep .rn{font-family:var(--font-display);font-weight:600;color:var(--gold);font-size:clamp(.7rem,.95vw,.9rem);margin-bottom:.3em}
+.rstep .rt{font-weight:700;font-size:clamp(.74rem,1vw,.95rem);margin-bottom:.15em}
+.rstep .rd{font-size:clamp(.62rem,.85vw,.76rem);color:var(--muted);line-height:1.45}
+.close-vision{font-family:var(--font-display);font-size:clamp(1.2rem,2.6vw,2.3rem);font-weight:500;line-height:1.3;max-width:24ch}
+.close-vision em{font-style:italic;color:var(--accent)}
+.close-links{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:clamp(1rem,2.6vh,1.8rem)}
+.clink{font-size:var(--small-size);font-weight:600;padding:.5em 1.1em;border-radius:100px;border:1px solid var(--accent);color:var(--accent)}
+.clink.solid{background:var(--accent);color:#fff}
+
+/* =========================================================
+   NAV / PROGRESS
+   ========================================================= */
+.progress{position:fixed;top:0;left:0;height:3px;background:var(--accent);width:0;z-index:50;transition:width .25s ease}
+.dots{position:fixed;right:clamp(.7rem,1.6vw,1.6rem);top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:.65rem;z-index:50}
+.dots button{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--accent);background:transparent;cursor:pointer;padding:0;transition:all .3s}
+.dots button.active{background:var(--accent);transform:scale(1.35)}
+.hint{position:fixed;bottom:clamp(.6rem,1.4vh,1.1rem);left:50%;transform:translateX(-50%);
+  font-size:var(--tiny-size);color:var(--muted);z-index:40;letter-spacing:.12em}
+
+/* ---------- reveal ---------- */
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.slide.visible .reveal{opacity:1;transform:none}
+.slide.visible .reveal:nth-child(1){transition-delay:.05s}
+.slide.visible .reveal:nth-child(2){transition-delay:.13s}
+.slide.visible .reveal:nth-child(3){transition-delay:.21s}
+.slide.visible .reveal:nth-child(4){transition-delay:.29s}
+.slide.visible .reveal:nth-child(5){transition-delay:.37s}
+.slide.visible .stagger > *{opacity:0;transform:translateY(20px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+.slide.visible .stagger > *{opacity:1;transform:none}
+.slide.visible .stagger > *:nth-child(1){transition-delay:.18s}
+.slide.visible .stagger > *:nth-child(2){transition-delay:.26s}
+.slide.visible .stagger > *:nth-child(3){transition-delay:.34s}
+.slide.visible .stagger > *:nth-child(4){transition-delay:.42s}
+.slide.visible .stagger > *:nth-child(5){transition-delay:.50s}
+.slide.visible .stagger > *:nth-child(6){transition-delay:.58s}
+
+/* ---------- responsive ---------- */
+@media (max-height:720px){:root{--slide-padding:clamp(1rem,3vw,2.4rem)}}
+@media (max-width:860px){
+  .cap-wrap,.biz{grid-template-columns:1fr}
+  .cap-aside,.roi-hero{display:none}
+  .flow{flex-direction:column}.step .arrow{display:none}
+  .road{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:600px){
+  .pain-grid{grid-template-columns:1fr}
+  .arch-row{flex-direction:column}
+  .dots{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.2s!important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<nav class="dots" id="dots"></nav>
+<div class="hint">↓ / → 翻页 · 滚动浏览</div>
+
+<!-- ===================== 1 · COVER ===================== -->
+<section class="slide cover">
+  <div class="slide-content">
+    <div class="logo-row reveal"><span class="dot"></span><span class="brand">Replica</span></div>
+    <h1 class="reveal">员工<span class="em">数字分身</span>平台</h1>
+    <p class="slogan reveal">3 分钟创建你的数字分身——替你回答重复问题、答不出转真人、<b>越用越聪明、越用越懂你</b>；经验可沉淀、可交接、可流动。</p>
+    <div class="cover-tags reveal">
+      <span class="tag solid">toB · Agent 赛道</span>
+      <span class="tag">每人一个有人格的分身</span>
+      <span class="tag">双路自进化</span>
+      <span class="tag">经验可交接</span>
+    </div>
+  </div>
+  <div class="foot">
+    <div class="sources">演示舞台：虚拟公司「星澜科技」— 评委即是这种公司，代入最快</div>
+    <div class="pageno"><span class="brandmark">Replica</span> · 01 / 07</div>
+  </div>
+</section>
+
+<!-- ===================== 2 · PAIN ===================== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal">六个真实场景 · 同一个问题</div>
+    <h2 class="reveal">知识锁在少数人脑子里，人一忙，就断档。</h2>
+    <div class="pain-grid stagger">
+      <div class="pain-card">
+        <div class="pc-head"><span class="pc-no">01</span><span class="pc-title">专家被打断</span></div>
+        <div class="pc-data">员工每 <span class="hl">2 分钟</span>被打断一次——按 8 小时折算一天 <span class="hl">275 次</span><sup>[1]</sup></div>
+      </div>
+      <div class="pain-card">
+        <div class="pc-head"><span class="pc-no">02</span><span class="pc-title">文档过时无人维护</span></div>
+        <div class="pc-data">知识没人维护、没人共享，财富 500 强每年为此损失 <span class="hl">$315 亿</span><sup>[2]</sup></div>
+      </div>
+      <div class="pain-card">
+        <div class="pc-head"><span class="pc-no">03</span><span class="pc-title">群机器人 / 客服无人盯</span></div>
+        <div class="pc-data">客服人力极贵——2026 年 AI 将砍掉 <span class="hl">$800 亿</span>坐席成本<sup>[3]</sup></div>
+      </div>
+      <div class="pain-card">
+        <div class="pc-head"><span class="pc-no">04</span><span class="pc-title">新人 landing 无人带</span></div>
+        <div class="pc-data">新人要 <span class="hl">12 个月</span>才完全产出；仅 <span class="hl">12%</span> 员工认可公司 onboarding<sup>[4]</sup></div>
+      </div>
+      <div class="pain-card">
+        <div class="pc-head"><span class="pc-no">05</span><span class="pc-title">离职 / 休假断档</span></div>
+        <div class="pc-data"><span class="hl">42%</span> 的企业知识只装在某一个人脑子里——他一走就带走<sup>[5]</sup></div>
+      </div>
+      <div class="pain-card">
+        <div class="pc-head"><span class="pc-no">06</span><span class="pc-title">跨组协作找不到人</span></div>
+        <div class="pc-data">知识工作者每周 <span class="hl">28 小时</span>耗在写邮件、找信息、内部协作<sup>[6]</sup></div>
+      </div>
+    </div>
+    <div class="src-list reveal">
+      <div class="sl-head">参考来源（原文）</div>
+      <div class="src-line"><span class="sn">[1]</span><b>微软《Work Trend Index 2025》</b>：<i>"employees using Microsoft 365 are interrupted every 2 minutes by a meeting, email, or notification."</i>（275 次/天为按 8 小时工作日折算）</div>
+      <div class="src-line"><span class="sn">[2]</span><b>IDC（经 Nuclino 引述）</b>：<i>"Fortune 500 companies lose roughly $31.5 billion a year by failing to share knowledge."</i></div>
+      <div class="src-line"><span class="sn">[3]</span><b>Gartner（经 CX Today 报道）</b>：<i>"bots will reduce agent labor costs by as much as $80BN in 2026."</i></div>
+      <div class="src-line"><span class="sn">[4]</span><b>Gallup（经 Docebo 引述）</b>：<i>"Gallup's research estimates an onboarding period of 12 months before a new hire reaches their full performance potential."</i>（"only 12% … does a great job onboarding"）</div>
+      <div class="src-line"><span class="sn">[5]</span><b>Panopto（经 HR Dive 报道）</b>：<i>"42% of institutional knowledge is unique to employees in their role and not shared with coworkers."</i></div>
+      <div class="src-line"><span class="sn">[6]</span><b>McKinsey《The Social Economy》</b>：<i>"28 hours — Time each week spent by knowledge workers writing e-mails, searching for information, and collaborating internally."</i></div>
+    </div>
+  </div>
+  <div class="foot">
+    <div class="sources"></div>
+    <div class="pageno"><span class="brandmark">Replica</span> · 02 / 07</div>
+  </div>
+</section>
+
+<!-- ===================== 3 · CAPABILITIES ===================== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal">解决方案 · 五大能力</div>
+    <h2 class="reveal" style="margin-bottom:.6em">Replica = 每人一个会自进化、越用越懂你的数字分身</h2>
+    <div class="cap-wrap">
+      <div class="cap-list stagger">
+        <div class="cap"><div class="ci">1</div><div><div class="ct">3 分钟自助创建分身</div><div class="cd">低门槛，员工自己上传文档即可拥有分身</div></div></div>
+        <div class="cap"><div class="ci">2</div><div><div class="ct">双路自进化</div><div class="cd">答不出转真人 → 沉淀；推理结论 → 审批入库</div></div></div>
+        <div class="cap"><div class="ci">3</div><div><div class="ct">多层记忆，越用越懂你</div><div class="cd">语义记忆 + 情景记忆，分身随对话变聪明</div></div></div>
+        <div class="cap"><div class="ci">4</div><div><div class="ct">分身转移</div><div class="cd">离职 / 休假 / 轮岗，经验随岗位可交接</div></div></div>
+        <div class="cap"><div class="ci">5</div><div><div class="ct">原生 IM</div><div class="cd">平台自带问答；未来作数字员工接入飞书 / 钉钉</div></div></div>
+      </div>
+      <div class="cap-aside reveal">
+        <div class="qa">把六个痛点收敛成一句：<br><em>让知识不再随人走。</em></div>
+        <div class="qb">专家答一次、全员复用；新人有 7×24 的资深 mentor；离职/休假，分身不掉线。</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <div class="sources">MVP 已跑通主路；组织级分身 / 关系记忆 / 用户画像架构预留接口</div>
+    <div class="pageno"><span class="brandmark">Replica</span> · 03 / 07</div>
+  </div>
+</section>
+
+<!-- ===================== 4 · FLYWHEEL ===================== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal">产品完成度 · 评委可自己上手</div>
+    <h2 class="reveal">一条真跑通的飞轮闭环</h2>
+    <div class="flow stagger">
+      <div class="step"><div class="sn">1</div><div class="st">问命中</div><div class="sd">RAG 检索 + 人格化回答</div><div class="arrow">→</div></div>
+      <div class="step"><div class="sn">2</div><div class="st">诚实 + 转人工</div><div class="sd">答不出不胡说，记为待回答</div><div class="arrow">→</div></div>
+      <div class="step"><div class="sn">3</div><div class="st">真人补答</div><div class="sd">本人一句话答 → 一键沉淀</div><div class="arrow">→</div></div>
+      <div class="step key"><div class="sn">4</div><div class="st">闭环命中 ★</div><div class="sd">再问同问题——这次答出来了</div><div class="arrow">→</div></div>
+      <div class="step"><div class="sn">5</div><div class="st">越用越懂你</div><div class="sd">带着记忆回答下一个问题</div></div>
+    </div>
+    <div class="flow-badges reveal">
+      <span class="fb">公网 Demo 链接</span>
+      <span class="fb">GitHub 开源</span>
+      <span class="fb">开箱即用 · 自助上手</span>
+      <span class="fb">可选收尾：一键「分身转移」</span>
+    </div>
+  </div>
+  <div class="foot">
+    <div class="sources">评委扮「刚加入灵犀组的新人」，不打扰真人，直接问陈昊的分身 → 1 分钟跑通五步</div>
+    <div class="pageno"><span class="brandmark">Replica</span> · 04 / 07</div>
+  </div>
+</section>
+
+<!-- ===================== 5 · ARCHITECTURE ===================== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal">技术深度 · 不止是简单调 API</div>
+    <h2 class="reveal">RAG + Agent 工具设计 + 双路自进化 + 多层记忆</h2>
+    <div class="arch stagger">
+      <div class="arch-row">
+        <div class="arch-box"><div class="ah">前后端</div><div class="at">Next.js</div><div class="ad">App Router + Route Handlers 当 API</div></div>
+        <div class="arch-box"><div class="ah">数据 / 向量 / Auth</div><div class="at">Supabase</div><div class="ad">Postgres + pgvector + Storage</div></div>
+        <div class="arch-box"><div class="ah">部署</div><div class="at">Vercel</div><div class="ad">公网链接，满足「可访问 Demo」硬交付</div></div>
+      </div>
+      <div class="arch-row">
+        <div class="arch-box hero"><div class="ah">分身 = Agent</div><div class="at">系统提示（人格 + 边界）+ 工具集</div><div class="ad">知识检索 / 记忆检索 / 答疑沉淀 / 待回答推送</div></div>
+      </div>
+      <div class="eng-row reveal">
+        <span class="chip"><b>原文表 / 向量表分离</b>：chunks 召回再回查 articles 取出处</span>
+        <span class="chip"><b>答不出边界</b>：检索置信不足时诚实声明并转人工</span>
+        <span class="chip"><b>记忆链路</b>：对话自动抽取语义记忆，回答时召回</span>
+        <span class="chip"><b>OpenAPI 批量灌库</b>：脚本建组织 / 上传文档 / 触发向量化</span>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <div class="sources">数据表：replicas · articles · chunks · memories · pending_qs · knowledge_items</div>
+    <div class="pageno"><span class="brandmark">Replica</span> · 05 / 07</div>
+  </div>
+</section>
+
+<!-- ===================== 6 · BUSINESS ===================== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal">商业潜力 · 为企业省多少钱</div>
+    <div class="biz">
+      <div class="reveal">
+        <div class="roi-hero">
+          <div class="rh-label">1,000 人知识型企业 · 仅「找人 + 找信息 + 重复答疑」</div>
+          <div class="rh-big">$1,240 万<span style="font-size:.5em;font-weight:500"> / 年隐性损耗</span></div>
+          <div class="rh-sub">数字分身哪怕只回收 <b>40%</b> = <b>每年近 $500 万</b><sup>[1]</sup>——这还没算客服培训、新人爬坡、离职断档省下的钱。</div>
+        </div>
+        <div class="buyers">
+          <div class="buyer"><span class="bdot"></span><div><b>业务 / 技术负责人</b>：专家答一次全员复用，经验可交接</div></div>
+          <div class="buyer"><span class="bdot"></span><div><b>HR / L&amp;D</b>：每个新人配 7×24 资深 mentor，留存 +52%</div></div>
+          <div class="buyer"><span class="bdot"></span><div><b>IT / 客服</b>：答不出转真人 + 自动沉淀，降本 + 合规兜底</div></div>
+        </div>
+      </div>
+      <div class="reveal">
+        <div class="biz-h">差异化 · 避开「换皮」</div>
+        <table class="cmp">
+          <thead><tr><th>维度</th><th>Viven</th><th>Lucius</th><th>QB</th><th class="me">Replica</th></tr></thead>
+          <tbody>
+            <tr><th>每人有人格分身</th><td class="ok">✓</td><td class="x">单一AI</td><td class="x">纯路由</td><td class="me">✓</td></tr>
+            <tr><th>多层记忆·懂你</th><td class="x">弱</td><td class="x">✕</td><td class="x">✕</td><td class="me">✓</td></tr>
+            <tr><th>分身可交接</th><td class="x">✕</td><td class="x">✕</td><td class="x">✕</td><td class="me">✓</td></tr>
+            <tr><th>上手成本</th><td class="x">8 周</td><td>接 IM</td><td>中</td><td class="me">3 分钟</td></tr>
+          </tbody>
+        </table>
+        <div style="font-size:var(--tiny-size);color:var(--muted);margin-top:.6em;line-height:1.55">
+          宏观背书：可避免的员工流动每年损失美企 <b style="color:var(--ink-soft)">$1 万亿</b><sup>[2]</sup>；Gartner 预测 2026 年对话式 AI 省 <b style="color:var(--ink-soft)">$800 亿</b>客服成本<sup>[3]</sup>。
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <div class="sources"><b>参考来源：</b>[1] APQC (2021) + Panopto 报告（找信息/重复答疑工时），节约比例为基于权威占比的估算　[2] Gallup《This Fixable Problem Costs U.S. Businesses $1 Trillion》　[3] Gartner 新闻稿（2022）</div>
+    <div class="pageno"><span class="brandmark">Replica</span> · 06 / 07</div>
+  </div>
+</section>
+
+<!-- ===================== 7 · ROADMAP / CLOSE ===================== -->
+<section class="slide close">
+  <div class="slide-content">
+    <div class="kicker reveal">未来空间 · 纵深</div>
+    <div class="road stagger">
+      <div class="rstep"><div class="rn">01</div><div class="rt">组织级分身</div><div class="rd">从个人分身升到组织 brain</div></div>
+      <div class="rstep"><div class="rn">02</div><div class="rt">关系记忆</div><div class="rd">维护「提问者 ↔ 回答者」的关系</div></div>
+      <div class="rstep"><div class="rn">03</div><div class="rt">更个性化</div><div class="rd">多维用户画像，回答带更多上下文</div></div>
+      <div class="rstep"><div class="rn">04</div><div class="rt">Proactive</div><div class="rd">主动行为，提升效率与黏性</div></div>
+    </div>
+    <h1 class="close-vision reveal">让每个人的经验<br><em>可沉淀、可交接、可流动。</em></h1>
+    <div class="close-links reveal">
+      <span class="clink solid">公网 Demo</span>
+      <span class="clink">GitHub</span>
+      <span class="clink">Replica · 员工数字分身平台</span>
+    </div>
+  </div>
+  <div class="foot">
+    <div class="sources">谢谢 · 欢迎下场体验你的第一个数字分身</div>
+    <div class="pageno"><span class="brandmark">Replica</span> · 07 / 07</div>
+  </div>
+</section>
+
+<script>
+/* ===========================================
+   SLIDE CONTROLLER — nav dots, progress, reveal
+   =========================================== */
+(function(){
+  const slides=[...document.querySelectorAll('.slide')];
+  const dotsWrap=document.getElementById('dots');
+  const progress=document.getElementById('progress');
+
+  // build nav dots
+  slides.forEach((s,i)=>{
+    const b=document.createElement('button');
+    b.setAttribute('aria-label','跳到第 '+(i+1)+' 页');
+    b.addEventListener('click',()=>s.scrollIntoView({behavior:'smooth'}));
+    dotsWrap.appendChild(b);
+  });
+  const dots=[...dotsWrap.children];
+
+  // reveal on enter + active dot + progress
+  const io=new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        e.target.classList.add('visible');
+        const i=slides.indexOf(e.target);
+        dots.forEach((d,j)=>d.classList.toggle('active',j===i));
+        progress.style.width=((i+1)/slides.length*100)+'%';
+      }
+    });
+  },{threshold:0.55});
+  slides.forEach(s=>io.observe(s));
+
+  // keyboard nav
+  let idx=0;
+  function go(n){idx=Math.max(0,Math.min(slides.length-1,n));slides[idx].scrollIntoView({behavior:'smooth'});}
+  window.addEventListener('keydown',(e)=>{
+    const cur=slides.findIndex(s=>s.classList.contains('visible'));
+    if(cur>=0)idx=cur;
+    if(['ArrowDown','ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();go(idx+1);}
+    if(['ArrowUp','ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(idx-1);}
+    if(e.key==='Home'){e.preventDefault();go(0);}
+    if(e.key==='End'){e.preventDefault();go(slides.length-1);}
+  });
+})();
+</script>
+</body>
+</html>

@@ -4,7 +4,7 @@ import { buildReplicaAgent } from '@/lib/agent/replicaAgent'
 import { buildToolset } from '@/lib/agent/tools'
 import { supabaseAdmin } from '@/lib/db/client'
 import { getSettings } from '@/lib/db/settings'
-import { addMessage, ensureTitle } from '@/lib/db/conversations'
+import { addMessage, ensureTitle, getMessages } from '@/lib/db/conversations'
 
 export const runtime = 'nodejs' // pi-agent-core 需要 Node 运行时（非 edge）
 
@@ -24,8 +24,13 @@ export async function POST(req: Request) {
     return Response.json({ error: '分身不存在' }, { status: 404 })
   }
 
-  // 落库用户消息 + 首条消息作会话标题
+  // 加载会话历史（喂给 LLM 作上下文）——必须在落库当前消息之前取，避免把当前问题重复进 transcript
+  let history: { role: string; content: { type: 'text'; text: string }[] }[] = []
   if (conversationId) {
+    const past = await getMessages(conversationId)
+    history = past
+      .filter((m) => m.content && (m.role === 'user' || m.role === 'assistant'))
+      .map((m) => ({ role: m.role, content: [{ type: 'text' as const, text: m.content }] }))
     await addMessage(conversationId, 'user', message)
     await ensureTitle(conversationId, message)
   }
@@ -40,6 +45,7 @@ export async function POST(req: Request) {
     systemPrompt: [basePersona, scene].filter(Boolean).join('\n\n'),
     modelId: model || settings.chatModel, // 对话框传的优先，否则用系统设置默认
     tools: buildToolset(ctx), // 回答别人=检索+沉淀；主人=额外 manageMemory
+    messages: history, // 注入会话历史，让分身记得上文
   })
 
   const stream = new ReadableStream({
