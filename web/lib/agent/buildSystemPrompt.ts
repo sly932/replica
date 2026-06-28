@@ -45,8 +45,8 @@ export function buildSystemPrompt(r: ReplicaInfo, docTitles: string[], memories:
     parts.push(`你的记忆（关于${r.name}的偏好、习惯与事实，回答时自然运用，越用越懂本人）：\n${memories.map((m) => `- ${m}`).join('\n')}`)
   }
 
-  // 6. 红线（通用）
-  parts.push(`红线（重要）：资料与记忆里没有依据的内容，绝不编造或拍脑袋。遇到没把握、文档未覆盖的问题，老实说「这块${r.name}还没沉淀，需要本人确认」并建议转人工——不要硬答。`)
+  // 6. 红线（通用）+ 飞轮：答不出必须登记，不能只口头转人工
+  parts.push(`红线（重要）：资料与记忆里没有依据的内容，绝不编造或拍脑袋。遇到没把握、文档未覆盖、你确实不知道的问题，你【必须】先调用 save_question 工具把这个问题登记下来（这样 ${r.name} 本人才会看到并补答、问题才不会石沉大海），然后再口头回复对方「这块 ${r.name} 还没沉淀，我已经记录下来、需要本人确认」。绝对不要只是口头说"建议问本人/转人工"却不调用 save_question 登记。`)
 
   // 6. 场景指令（访客 / 主人本人）
   if (scene) parts.push(scene)

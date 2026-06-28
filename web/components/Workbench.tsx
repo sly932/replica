@@ -12,12 +12,14 @@ import MemoryPage from '@/components/pages/MemoryPage'
 import ProfilePage from '@/components/pages/ProfilePage'
 import SettingsPage from '@/components/pages/SettingsPage'
 import SubReplicasPage from '@/components/pages/SubReplicasPage'
+import DocsLibraryPage from '@/components/pages/DocsLibraryPage'
 
-type PageKey = 'chat' | 'sources' | 'items' | 'memory' | 'profile' | 'subs' | 'settings'
+type PageKey = 'chat' | 'sources' | 'library' | 'items' | 'memory' | 'profile' | 'subs' | 'settings'
 
 const NAV: { key: PageKey; label: string; icon: React.ReactNode }[] = [
   { key: 'chat', label: '对话', icon: <IcChat /> },
   { key: 'sources', label: '知识来源', icon: <IcBook /> },
+  { key: 'library', label: '文档库', icon: <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg> },
   { key: 'items', label: '知识条目', icon: <IcClipboard /> },
   { key: 'memory', label: '记忆', icon: <IcSparkle /> },
   { key: 'profile', label: '个人资料', icon: <IcUser /> },
@@ -117,6 +119,7 @@ export default function Workbench() {
 
           {page === 'chat' && <ChatPage />}
           {page === 'sources' && <SourcesPage />}
+          {page === 'library' && <DocsLibraryPage />}
           {page === 'items' && <ItemsPage />}
           {page === 'memory' && <MemoryPage />}
           {page === 'profile' && <ProfilePage />}
