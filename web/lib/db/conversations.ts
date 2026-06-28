@@ -75,6 +75,12 @@ export async function addMessage(
 }
 
 // 会话标题为空时用首条用户消息截断填充（会话列表展示用）
+// 删除会话（messages 经 on delete cascade 自动级联删除）
+export async function deleteConversation(conversationId: string): Promise<void> {
+  const { error } = await supabaseAdmin.from('conversations').delete().eq('id', conversationId)
+  if (error) throw new Error(`deleteConversation 失败: ${error.message}`)
+}
+
 export async function ensureTitle(conversationId: string, text: string): Promise<void> {
   const { data } = await supabaseAdmin
     .from('conversations')

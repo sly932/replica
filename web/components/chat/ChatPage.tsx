@@ -1,16 +1,18 @@
 import { useState, useRef, useEffect } from 'react'
-import type { Person, Msg, TabKey, AvCls, ToolCall } from '@/lib/types'
+import type { Person, Msg, AvCls, ToolCall } from '@/lib/types'
 import { IcSearch, IcSend } from '@/lib/icons'
 import { streamChat } from '@/lib/api/chat'
-import { listConversations, createConversation, getMessages, type Conv, type ApiMsg } from '@/lib/api/conversations'
+import { listConversations, createConversation, getMessages, deleteConversation, type Conv, type ApiMsg } from '@/lib/api/conversations'
 import { cacheGet, cacheSet, cacheClear } from '@/lib/cache'
 import { useReplica } from '@/lib/replicaContext'
+import { confirmDialog } from '@/lib/dialog'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
 const ME = { cls: 'c2' as AvCls, ini: '你' }
 const CLS: AvCls[] = ['c1', 'c2', 'c3', 'c4', 'c5']
-const DIR: Record<TabKey, 'ask_me' | 'i_ask'> = { askMe: 'ask_me', iAsk: 'i_ask' }
+// 只保留「我问 TA」方向；提问者=当前用户
+const DIRECTION = 'i_ask'
 const TOOL_LABEL: Record<string, string> = {
   search_knowledge: '检索知识库', search_memory: '检索记忆', search_conversation: '检索历史会话',
   read_document: '读取文档', read_knowledge_item: '读取知识条目', save_question: '登记待回答问题',
@@ -85,7 +87,6 @@ interface Streaming { text: string; toolCalls: ToolCall[]; abort: AbortControlle
 export default function ChatPage() {
   const { currentId, replicas } = useReplica()
   const [personId, setPersonId] = useState('')
-  const [tab, setTab] = useState<TabKey>('iAsk')
   const [convs, setConvs] = useState<Conv[]>([])
   const [convId, setConvId] = useState('')
   const [msgs, setMsgs] = useState<Msg[]>([])
@@ -102,10 +103,9 @@ export default function ChatPage() {
 
   const people = replicas.map(toPerson)
   const person = people.find((p) => p.id === personId)
-  // i_ask(我问TA)：被问=personId，提问者=当前用户；ask_me(TA问我)：被问=当前用户的分身
-  // 选中分身(personId)始终是被问/回答方；我问TA=我作提问者，TA问我=列别人问它的
+  // 选中分身(personId)始终是被问/回答方；只展示「我问 TA」，提问者=当前用户
   const convReplicaId = personId
-  const askerId = tab === 'iAsk' ? currentId : undefined
+  const askerId = currentId
 
   useEffect(() => { convIdRef.current = convId }, [convId])
   useEffect(() => { streamingMapRef.current = streamingMap }, [streamingMap])
@@ -124,11 +124,11 @@ export default function ChatPage() {
     getMessages(cid).then((ms) => { cacheSet(ck, ms); setMsgs(ms.map((m) => toMsg(m, p))) }).catch(() => setMsgs([]))
   }
 
-  // 分身/tab/当前用户 变 → 拉会话（按 asker 过滤），选第一个。切换用户即重载。
+  // 分身/当前用户 变 → 拉「我问 TA」会话，选第一个。切换用户即重载。
   useEffect(() => {
     if (!convReplicaId || !currentId) return
     let alive = true
-    const ck = `convs:${convReplicaId}:${tab}:${askerId || 'all'}`
+    const ck = `convs:${convReplicaId}:${askerId}`
     const apply = (cs: Conv[]) => {
       if (!alive) return
       setConvs(cs)
@@ -137,10 +137,10 @@ export default function ChatPage() {
     }
     const cached = cacheGet<Conv[]>(ck)
     if (cached) { apply(cached); return () => { alive = false } }
-    listConversations(convReplicaId, DIR[tab], askerId).then((cs) => { cacheSet(ck, cs); apply(cs) }).catch(() => {})
+    listConversations(convReplicaId, DIRECTION, askerId).then((cs) => { cacheSet(ck, cs); apply(cs) }).catch(() => {})
     return () => { alive = false }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [personId, tab, currentId])
+  }, [personId, currentId])
 
   useEffect(() => {
     if (msgsRef.current) msgsRef.current.scrollTop = msgsRef.current.scrollHeight
@@ -151,14 +151,24 @@ export default function ChatPage() {
   // 新建对话只切到空白态，不写表；发首条消息时(doSend convId 为空)才 createConversation
   const newConv = () => { setConvId(''); setMsgs([]) }
 
+  // 删除会话：确认后调 DELETE，从列表移除；若删的是当前会话则切到空白态
+  const delConv = async (e: React.MouseEvent, c: Conv) => {
+    e.stopPropagation()
+    if (!(await confirmDialog(`删除会话「${c.title || '新对话'}」？该会话的聊天记录将一并删除，且不可恢复。`))) return
+    setConvs((prev) => prev.filter((x) => x.id !== c.id))
+    if (convId === c.id) { setConvId(''); setMsgs([]) }
+    cacheClear('convs:'); cacheClear(`msgs:${c.id}`)
+    try { await deleteConversation(c.id) } catch { /* 已从UI移除，失败下次刷新自然恢复 */ }
+  }
+
   const doSend = async (v: string, p: Person, curConvId: string) => {
     const botAv = { cls: p.cls, ini: p.ini }
     const cReplica = p.id // 选中分身始终是回答方
     const cAsker = currentId
-    const isOwner = tab === 'iAsk' && p.id === currentId // 我问我自己的分身=主人场景
+    const isOwner = p.id === currentId // 我问我自己的分身=主人场景
     let cid = curConvId
     if (!cid) {
-      const conv = await createConversation(cReplica, DIR[tab], cAsker)
+      const conv = await createConversation(cReplica, DIRECTION, cAsker)
       cid = conv.id
       cacheClear('convs:')
       setConvs((prev) => [conv, ...prev]); setConvId(cid)
@@ -180,7 +190,7 @@ export default function ChatPage() {
         if (convIdRef.current === cid) setMsgs((prev) => [...prev, { side: 'left', av: botAv, type: 'text', text: acc, toolCalls: finalTools.length ? finalTools : undefined }])
         setStreamingMap((m) => { const n = { ...m }; delete n[cid]; return n })
         cacheClear(`msgs:${cid}`); cacheClear('convs:')
-        listConversations(cReplica, DIR[tab], tab === 'iAsk' ? currentId : undefined).then((cs) => { cacheSet(`convs:${cReplica}:${tab}:${tab === 'iAsk' ? currentId : 'all'}`, cs); setConvs(cs) }).catch(() => {})
+        listConversations(cReplica, DIRECTION, currentId).then((cs) => { cacheSet(`convs:${cReplica}:${currentId}`, cs); setConvs(cs) }).catch(() => {})
         const ql = queueRef.current[cid] || []
         if (ql.length) {
           const next = ql.shift()!
@@ -215,7 +225,7 @@ export default function ChatPage() {
   // 查看当前会话生效的完整系统提示词（人格 + 场景）
   const viewSys = async () => {
     if (!convReplicaId) return
-    const owner = tab === 'iAsk' && personId === currentId
+    const owner = personId === currentId
     setSysText('加载中…'); setShowSys(true)
     try {
       const r = await fetch(`/api/system-prompt?replicaId=${convReplicaId}&isOwner=${owner}`)
@@ -247,11 +257,7 @@ export default function ChatPage() {
       </div>
 
       <div className="threads col">
-        <div className="tabs">
-          <div className={'tab' + (tab === 'askMe' ? ' active' : '')} onClick={() => setTab('askMe')}>TA 问我</div>
-          <div className={'tab' + (tab === 'iAsk' ? ' active' : '')} onClick={() => setTab('iAsk')}>我问 TA</div>
-        </div>
-        <div className="tlist scroll">
+        <div className="tlist scroll" style={{ paddingTop: 10 }}>
           {person && (
             <div className="titem new-conv" onClick={newConv} style={{ textAlign: 'center', color: 'var(--accent)', fontWeight: 600 }}>＋ 新对话</div>
           )}
@@ -259,6 +265,9 @@ export default function ChatPage() {
             <div key={c.id} className={'titem' + (c.id === convId ? ' active' : '')} onClick={() => selectConv(c.id)}>
               <div className="tt">{c.title || '新对话'}</div>
               <div className="td">{streamingMap[c.id] ? <span className="chip wait">回复中…</span> : <span className="chip done">已回答</span>}</div>
+              <button className="del" title="删除会话" onClick={(e) => delConv(e, c)}>
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /><path d="M10 11v6M14 11v6" /></svg>
+              </button>
             </div>
           ))}
           {person && convs.length === 0 && <div className="empty-thread">点「＋ 新对话」开始</div>}
@@ -272,12 +281,12 @@ export default function ChatPage() {
               <div className={`av ${person.cls}`}>{person.ini}{person.online && <span className="online" />}</div>
               <div>
                 <div className="hn">{person.name} <span className="pill">{person.role}</span></div>
-                <div className="hs">{tab === 'iAsk' ? `「${person.name} 的分身」· 7×24 在线` : `别人向「${person.name} 的分身」提问`}</div>
+                <div className="hs">{`「${person.name} 的分身」· 7×24 在线`}</div>
               </div>
               <button onClick={newConv} style={{ marginLeft: 'auto', fontSize: '12px', padding: '6px 13px', borderRadius: '8px', border: '1px solid var(--stroke)', background: 'transparent', color: 'var(--accent)', cursor: 'pointer' }}>＋ 新对话</button>
             </div>
             <div className="msgs scroll" ref={msgsRef}>
-              <div className="daydiv">{tab === 'iAsk' ? `你向 ${person.name} 的分身提问` : `别人向 ${person.name} 的分身提问`}</div>
+              <div className="daydiv">{`你向 ${person.name} 的分身提问`}</div>
               {msgs.map((m, i) => <MsgView key={i} m={m} />)}
               {cur && (
                 <div className="row left">

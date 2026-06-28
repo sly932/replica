@@ -13,6 +13,7 @@ import {
   keywordChunks,
   keywordKnowledge,
   rrfFuse,
+  articleTitlesByIds,
   type ChunkHit,
   type KnowledgeHit,
 } from '../db/queries'
@@ -215,6 +216,7 @@ export async function ingestArticleById(
 export type HybridResultType = 'chunk' | 'knowledge'
 export interface HybridResult {
   type: HybridResultType
+  title: string // 标题：chunk → 所属文档标题；knowledge → 条目问题（供回答末尾标注引用来源）
   summary: string // 简介：chunk.context / 知识条目的 question
   content: string // 正文：chunk_text / 知识条目的 answer
   id: string // chunk → 所属文档 article_id；knowledge → 条目 id
@@ -245,6 +247,7 @@ export async function hybridSearch(
   for (const c of vChunks as ChunkHit[]) {
     meta.set(keyOf('chunk', c.id), {
       type: 'chunk',
+      title: '', // chunk 标题在融合后批量回填（见下）
       summary: c.context,
       content: c.chunk_text,
       id: c.article_id,
@@ -254,6 +257,7 @@ export async function hybridSearch(
     if (!meta.has(keyOf('chunk', c.id))) {
       meta.set(keyOf('chunk', c.id), {
         type: 'chunk',
+        title: '',
         summary: c.context,
         content: c.chunk_text,
         id: c.article_id,
@@ -263,6 +267,7 @@ export async function hybridSearch(
   for (const k of vKnow as KnowledgeHit[]) {
     meta.set(keyOf('knowledge', k.id), {
       type: 'knowledge',
+      title: k.question, // 知识条目用问题作标题
       summary: k.question,
       content: k.answer,
       id: k.id,
@@ -272,6 +277,7 @@ export async function hybridSearch(
     if (!meta.has(keyOf('knowledge', k.id))) {
       meta.set(keyOf('knowledge', k.id), {
         type: 'knowledge',
+        title: k.question,
         summary: k.question,
         content: k.answer,
         id: k.id,
@@ -286,8 +292,19 @@ export async function hybridSearch(
     kKnow.map((k) => keyOf('knowledge', k.id)),
   ])
 
-  return fused
+  const results = fused
     .map((f) => meta.get(f.id))
     .filter((r): r is HybridResult => r !== undefined)
     .slice(0, topK)
+
+  // 回填 chunk 结果的文档标题（一次批量查 articles）
+  const chunkArticleIds = [...new Set(results.filter((r) => r.type === 'chunk').map((r) => r.id))]
+  if (chunkArticleIds.length) {
+    const titles = await articleTitlesByIds(chunkArticleIds)
+    for (const r of results) {
+      if (r.type === 'chunk') r.title = titles[r.id] || '未命名文档'
+    }
+  }
+
+  return results
 }

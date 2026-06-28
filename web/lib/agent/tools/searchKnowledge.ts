@@ -28,11 +28,11 @@ export function makeSearchKnowledgeTool(ctx: ToolCtx): AgentTool<typeof Params> 
         return okResult('未检索到相关内容。', { count: 0, results: [] })
       }
 
-      // 给模型看的正文：分条列出 type / 简介 / 内容 / id
+      // 给模型看的正文：分条列出 type / 标题 / 简介 / 内容 / id（标题供回答末尾标注引用来源）
       const text = results
         .map(
           (r, i) =>
-            `【${i + 1}】(${r.type}) ${r.summary}\n${r.content}\n[id: ${r.id}]`,
+            `【${i + 1}】(${r.type}) 《${r.title}》 ${r.summary}\n${r.content}\n[id: ${r.id}]`,
         )
         .join('\n---\n')
 

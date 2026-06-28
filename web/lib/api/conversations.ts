@@ -38,3 +38,7 @@ export async function getMessages(conversationId: string): Promise<ApiMsg[]> {
   const d = await r.json()
   return d.messages || []
 }
+
+export async function deleteConversation(conversationId: string): Promise<void> {
+  await fetch(`/api/conversations/${conversationId}`, { method: 'DELETE' })
+}

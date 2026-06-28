@@ -48,10 +48,18 @@ export function buildSystemPrompt(r: ReplicaInfo, memories: string[], scene: str
     `5. 如果某个结论是你通过多步工具调用、长链路推理才得出的、有价值且值得复用的，调用 save_insight 把它沉淀为知识点（待 ${r.name} 复核）。`,
   )
 
-  // 6. 红线
+  // 6. 引用标注：回答引用了知识库文档时，末尾列出参考文档
+  parts.push(
+    '【引用标注】如果你的回答引用了 search_knowledge / read_document 检索到的文档内容，' +
+    '必须在回答最后另起一行，按用到的文档标题列出参考来源，格式：\n' +
+    '参考文档：[1]文档标题A [2]文档标题B\n' +
+    '只列实际引用到的文档（用工具返回的《标题》），没引用文档（如凭记忆直接回答）时不要加这一行。',
+  )
+
+  // 7. 红线
   parts.push('红线：资料与记忆里没有依据的内容，绝不编造或拍脑袋；不确定就老实说不知道。')
 
-  // 7. 场景指令（访客 / 主人本人）
+  // 8. 场景指令（访客 / 主人本人）
   if (scene) parts.push(scene)
 
   return parts.join('\n\n')

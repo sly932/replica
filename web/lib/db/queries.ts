@@ -248,6 +248,19 @@ export async function getArticleById(id: string): Promise<ArticleRow | null> {
   return (data as ArticleRow) ?? null
 }
 
+// 批量按 id 取文档标题（search_knowledge 给 chunk 结果补标题用）→ { id: title }
+export async function articleTitlesByIds(ids: string[]): Promise<Record<string, string>> {
+  if (ids.length === 0) return {}
+  const { data, error } = await supabaseAdmin
+    .from('articles')
+    .select('id, title')
+    .in('id', ids)
+  if (error) throw new Error(`articleTitlesByIds 失败: ${error.message}`)
+  const map: Record<string, string> = {}
+  for (const r of data ?? []) map[r.id as string] = (r.title as string) || ''
+  return map
+}
+
 export async function updateRow(
   table: string,
   id: string,
