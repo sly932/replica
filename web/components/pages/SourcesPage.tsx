@@ -58,7 +58,7 @@ export default function SourcesPage() {
   }
 
   const remove = async (d: Article) => {
-    if (!(await confirmDialog(`删除「${d.title || '未命名'}」？此操作不可恢复。`))) return
+    if (!(await confirmDialog(`从你的知识库移除「${d.title || '未命名'}」？（只移除向量、不删除文档原文，之后可重新添加）`))) return
     setDocs((prev) => prev.filter((x) => x.id !== d.id))
     try { await deleteArticle(d.id) } catch (e) { await alertDialog((e as Error).message); reload() }
   }
@@ -88,7 +88,7 @@ export default function SourcesPage() {
               </div>
               <div className="acts">
                 <span className="iconbtn" title="打开/分享文档页" onClick={() => openDoc(d.id)}><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><path d="M15 3h6v6" /><path d="M10 14 21 3" /></svg></span>
-                <span className="iconbtn" title="删除" onClick={() => remove(d)}><IcEdit /></span>
+                <span className="iconbtn" title="从知识库移除" onClick={() => remove(d)}><IcEdit /></span>
                 <div className={'toggle' + (d.status === 'enabled' ? ' on' : '')} onClick={() => toggle(d)} />
               </div>
             </div>
