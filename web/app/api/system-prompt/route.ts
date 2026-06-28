@@ -20,12 +20,6 @@ export async function GET(req: Request) {
 
   const settings = await getSettings()
   const scene = isOwner ? settings.ownerPrompt : settings.visitorPrompt
-  const { data: docs } = await supabaseAdmin
-    .from('articles')
-    .select('title')
-    .eq('replica_id', replicaId)
-    .eq('status', 'enabled')
-  const docTitles = (docs || []).map((d) => d.title).filter(Boolean) as string[]
   const { data: mems } = await supabaseAdmin
     .from('memories')
     .select('content')
@@ -34,6 +28,6 @@ export async function GET(req: Request) {
     .eq('deleted', false)
   const memories = (mems || []).map((m) => m.content).filter(Boolean) as string[]
 
-  const systemPrompt = buildSystemPrompt(replica, docTitles, memories, scene)
+  const systemPrompt = buildSystemPrompt(replica, memories, scene)
   return Response.json({ systemPrompt })
 }

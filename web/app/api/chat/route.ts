@@ -40,12 +40,6 @@ export async function POST(req: Request) {
   const settings = await getSettings() // 全局默认模型 + 两处场景提示词（系统设置页可改）
   const scene = isOwner ? settings.ownerPrompt : settings.visitorPrompt
   // 系统提示词 = 统一模板 + 分身真实信息(字段 + 已启用文档清单) + 场景指令
-  const { data: docs } = await supabaseAdmin
-    .from('articles')
-    .select('title')
-    .eq('replica_id', replicaId)
-    .eq('status', 'enabled')
-  const docTitles = (docs || []).map((d) => d.title).filter(Boolean) as string[]
   const { data: mems } = await supabaseAdmin
     .from('memories')
     .select('content')
@@ -54,7 +48,7 @@ export async function POST(req: Request) {
     .eq('deleted', false)
   const memories = (mems || []).map((m) => m.content).filter(Boolean) as string[]
   const agent = buildReplicaAgent({
-    systemPrompt: buildSystemPrompt(replica, docTitles, memories, scene),
+    systemPrompt: buildSystemPrompt(replica, memories, scene),
     modelId: model || settings.chatModel, // 对话框传的优先，否则用系统设置默认
     tools: buildToolset(ctx), // 工具不在 systemPrompt 里，作为 tools 独立传给模型
     messages: history, // 注入会话历史，让分身记得上文
