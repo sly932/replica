@@ -256,14 +256,14 @@ h2{font-family:var(--font-display);font-size:var(--h2-size);font-weight:600;line
 .roi-hero .rh-label{font-size:var(--small-size);letter-spacing:.1em;color:var(--gold-soft);font-weight:600;margin-bottom:.5em}
 .roi-hero .rh-big{font-family:var(--font-display);font-weight:600;font-size:clamp(1.7rem,3.6vw,3rem);line-height:1.02}
 .roi-hero .rh-sub{margin-top:.5em;font-size:var(--small-size);color:rgba(255,255,255,.85);line-height:1.6}
-.buyers{display:flex;flex-direction:column;gap:.55rem;margin-top:clamp(.7rem,1.6vh,1.1rem)}
-.buyer{display:flex;gap:.7rem;align-items:flex-start;font-size:clamp(.66rem,.9vw,.82rem);color:var(--ink-soft);line-height:1.5}
+.buyers{display:flex;flex-direction:column;gap:clamp(.6rem,1.4vh,1rem);margin-top:clamp(.8rem,2vh,1.4rem)}
+.buyer{display:flex;gap:.7rem;align-items:flex-start;font-size:clamp(.74rem,1vw,.95rem);color:var(--ink-soft);line-height:1.55}
 .buyer b{color:var(--ink);font-weight:700}
-.buyer .bdot{flex:none;margin-top:.35em;width:7px;height:7px;border-radius:50%;background:var(--accent)}
-.cmp{width:100%;border-collapse:collapse;font-size:clamp(.6rem,.88vw,.8rem)}
-.cmp th,.cmp td{text-align:left;padding:clamp(.32em,.7vw,.55em) clamp(.3em,.6vw,.6em);border-bottom:1px solid var(--line)}
-.cmp thead th{font-size:var(--tiny-size);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
-.cmp tbody th{font-weight:600;color:var(--ink-soft);font-size:clamp(.62rem,.85vw,.78rem)}
+.buyer .bdot{flex:none;margin-top:.45em;width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.cmp{width:100%;border-collapse:collapse;font-size:clamp(.68rem,.95vw,.9rem)}
+.cmp th,.cmp td{text-align:left;padding:clamp(.45em,.95vw,.72em) clamp(.32em,.6vw,.65em);border-bottom:1px solid var(--line)}
+.cmp thead th{font-size:var(--small-size);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.cmp tbody th{font-weight:600;color:var(--ink-soft);font-size:clamp(.7rem,.95vw,.9rem)}
 .cmp .me{background:var(--accent-soft);color:var(--accent);font-weight:700;border-radius:6px}
 .cmp td.x{color:#bdb6a8}
 .cmp td.ok{color:var(--accent);font-weight:700}
@@ -553,9 +553,11 @@ h2{font-family:var(--font-display);font-size:var(--h2-size);font-weight:600;line
 <!-- ===================== 6 · BUSINESS ===================== -->
 <section class="slide">
   <div class="slide-content">
-    <div class="kicker reveal">商业潜力 · 为企业省多少钱</div>
+    <div class="kicker reveal">商业潜力 · 价值与壁垒</div>
+    <h2 class="reveal" style="margin-bottom:clamp(.55rem,1.8vh,1.2rem)">商业价值与竞品对比</h2>
     <div class="biz">
       <div class="reveal">
+        <div class="biz-h">① 能为企业省多少钱</div>
         <div class="roi-hero">
           <div class="rh-label">1,000 人知识型企业 · 仅「找人 + 找信息 + 重复答疑」</div>
           <div class="rh-big">$1,240 万<span style="font-size:.5em;font-weight:500"> / 年隐性损耗</span></div>
@@ -568,7 +570,7 @@ h2{font-family:var(--font-display);font-size:var(--h2-size);font-weight:600;line
         </div>
       </div>
       <div class="reveal">
-        <div class="biz-h">与其他竞品对比</div>
+        <div class="biz-h">② 与其他竞品对比</div>
         <table class="cmp">
           <thead><tr><th>维度</th><th>Viven</th><th>Lucius</th><th>QB</th><th class="me">Replica</th></tr></thead>
           <tbody>
@@ -578,7 +580,7 @@ h2{font-family:var(--font-display);font-size:var(--h2-size);font-weight:600;line
             <tr><th>上手成本</th><td class="x">8 周</td><td>接 IM</td><td>中</td><td class="me">3 分钟</td></tr>
           </tbody>
         </table>
-        <div style="font-size:var(--tiny-size);color:var(--muted);margin-top:.6em;line-height:1.55">
+        <div style="font-size:var(--small-size);color:var(--muted);margin-top:.85em;line-height:1.6">
           宏观背书：可避免的员工流动每年损失美企 <b style="color:var(--ink-soft)">$1 万亿</b><sup>[2]</sup>；Gartner 预测 2026 年对话式 AI 省 <b style="color:var(--ink-soft)">$800 亿</b>客服成本<sup>[3]</sup>。
         </div>
       </div>

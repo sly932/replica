@@ -27,18 +27,25 @@ export default function SourcesPage() {
   const openDoc = (id: string) => window.open(`${appUrl}/doc/${id}`, '_blank')
 
   const upload = async () => {
-    const link = await promptDialog('粘贴文档链接（如 https://站点/doc/xxx）：')
+    const link = await promptDialog('粘贴文档链接（如 https://站点/doc/<文档ID>）：')
     if (!link) return
-    // 取末段作为 articleId：去掉 query/hash 后 split('/').pop()
     const articleId = link.trim().split(/[?#]/)[0].replace(/\/+$/, '').split('/').pop() || ''
-    if (!articleId) { await alertDialog('链接无效，无法提取文档 ID'); return }
+    // 校验提取出的是合法文档 ID（uuid），避免把无效字符送到后端报错
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(articleId)) {
+      await alertDialog('链接无效：没能识别出文档 ID。请确认是 /doc/<文档ID> 形式的分享链接。')
+      return
+    }
+    // 文档 ID 重复检测：已在当前知识库则二次确认
+    if (docs.some((d) => d.id === articleId)) {
+      if (!(await confirmDialog('该文档已在知识库中，确定重新向量化（覆盖旧内容）吗？'))) return
+    }
     setBusy(true)
     try {
       const { chunkCount } = await ingestArticleById(articleId)
       await reload()
-      await alertDialog(`已重新向量化入库，生成 ${chunkCount} 块`)
-    } catch (e) {
-      await alertDialog((e as Error).message)
+      await alertDialog(`已向量化入库，生成 ${chunkCount} 块`)
+    } catch {
+      await alertDialog('入库失败：没找到该文档，可能链接里的 ID 不存在或文档已被删除。')
     } finally {
       setBusy(false)
     }

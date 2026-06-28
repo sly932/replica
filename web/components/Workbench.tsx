@@ -134,7 +134,7 @@ export default function Workbench() {
             <div style={switchListStyle}>
               {replicas.filter((r) => r.name.includes(sq)).map((r) => (
                 <div key={r.id} onClick={() => setSel(r.id)} style={{ ...switchItemStyle, ...(sel === r.id ? switchItemActive : {}) }}>
-                  <div className="av" style={{ width: 30, height: 30, fontSize: 12 }}>{r.name?.[0]}</div>
+                  <div style={{ width: 30, height: 30, fontSize: 12, flexShrink: 0, background: 'var(--accent-soft)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', fontWeight: 700 }}>{r.name?.[0]}</div>
                   <div><div style={{ fontWeight: 600 }}>{r.name}</div><div style={{ fontSize: 11, color: 'var(--dim)' }}>{r.role}{r.team ? ` · ${r.team}` : ''}</div></div>
                 </div>
               ))}
