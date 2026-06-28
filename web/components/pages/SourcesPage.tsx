@@ -41,9 +41,9 @@ export default function SourcesPage() {
     }
     setBusy(true)
     try {
-      const { chunkCount } = await ingestArticleById(articleId)
+      const { chunkCount, reused } = await ingestArticleById(articleId, currentId)
       await reload()
-      await alertDialog(`已向量化入库，生成 ${chunkCount} 块`)
+      await alertDialog(reused ? `已添加到知识库（复用已有向量，${chunkCount} 块）` : `已向量化入库，生成 ${chunkCount} 块`)
     } catch {
       await alertDialog('入库失败：没找到该文档，可能链接里的 ID 不存在或文档已被删除。')
     } finally {
@@ -60,7 +60,7 @@ export default function SourcesPage() {
   const remove = async (d: Article) => {
     if (!(await confirmDialog(`从你的知识库移除「${d.title || '未命名'}」？（只移除向量、不删除文档原文，之后可重新添加）`))) return
     setDocs((prev) => prev.filter((x) => x.id !== d.id))
-    try { await deleteArticle(d.id) } catch (e) { await alertDialog((e as Error).message); reload() }
+    try { await deleteArticle(d.id, currentId) } catch (e) { await alertDialog((e as Error).message); reload() }
   }
 
   return (

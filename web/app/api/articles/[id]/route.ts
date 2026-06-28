@@ -1,6 +1,6 @@
-// 单篇 article：PATCH 改 status(enabled/disabled)/title · DELETE 硬删（chunks 级联）
+// 单篇 article：PATCH 改 status(enabled/disabled)/title · DELETE 从当前分身知识库移除引用
 import { updateRow } from '@/lib/db/queries'
-import { deleteArticle } from '@/lib/db/articles'
+import { removeFromKb } from '@/lib/db/articles'
 
 export const runtime = 'nodejs'
 
@@ -19,10 +19,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   }
 }
 
-export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   try {
-    await deleteArticle(id)
+    const replicaId = new URL(req.url).searchParams.get('replicaId')
+    if (!replicaId) return Response.json({ error: 'replicaId 必填' }, { status: 400 })
+    await removeFromKb(replicaId, id)
     return Response.json({ ok: true })
   } catch (e) {
     return Response.json({ error: (e as Error).message }, { status: 500 })

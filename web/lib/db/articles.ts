@@ -12,11 +12,32 @@ export interface ArticleListRow {
   created_at: string
 }
 
+// 方案B：当前分身在 replica_kb 里引用了哪些文档（article_ids）。
+export async function listReplicaArticleIds(replicaId: string): Promise<string[]> {
+  const { data, error } = await supabaseAdmin
+    .from('replica_kb')
+    .select('article_id')
+    .eq('replica_id', replicaId)
+  if (error) throw new Error(`listReplicaArticleIds 失败: ${error.message}`)
+  return (data ?? []).map((r) => r.article_id as string)
+}
+
+// 方案B：让分身引用某篇文档（已引用则忽略）。
+export async function addToKb(replicaId: string, articleId: string): Promise<void> {
+  const { error } = await supabaseAdmin
+    .from('replica_kb')
+    .upsert({ replica_id: replicaId, article_id: articleId }, { onConflict: 'replica_id,article_id', ignoreDuplicates: true })
+  if (error) throw new Error(`addToKb 失败: ${error.message}`)
+}
+
+// 知识来源页：列出「当前分身引用的文档」（先取引用 ids，再查 articles）。
 export async function listArticles(replicaId: string): Promise<ArticleListRow[]> {
+  const ids = await listReplicaArticleIds(replicaId)
+  if (ids.length === 0) return []
   const { data, error } = await supabaseAdmin
     .from('articles')
     .select('id, replica_id, title, content, source_url, status, created_at')
-    .eq('replica_id', replicaId)
+    .in('id', ids)
     .neq('status', 'archived')
     .order('created_at', { ascending: false })
   if (error) throw new Error(`listArticles 失败: ${error.message}`)
@@ -70,10 +91,13 @@ export async function listAllDocuments(
   return { items, total: count ?? 0, page, pageSize }
 }
 
-// 从分身知识库「移除」：删向量(chunks) + 文档标记 archived。
-// 不真删 articles 原文行——文档是独立资产，/doc 仍可访问、可重新添加。
-export async function deleteArticle(id: string): Promise<void> {
-  await supabaseAdmin.from('chunks').delete().eq('article_id', id)
-  const { error } = await supabaseAdmin.from('articles').update({ status: 'archived' }).eq('id', id)
-  if (error) throw new Error(`移除文档失败: ${error.message}`)
+// 方案B：从「当前分身的知识库」移除引用——只删 replica_kb 关联。
+// 不删 article、不删 chunks（其它分身可能仍引用同一篇文档的全局向量）。
+export async function removeFromKb(replicaId: string, articleId: string): Promise<void> {
+  const { error } = await supabaseAdmin
+    .from('replica_kb')
+    .delete()
+    .eq('replica_id', replicaId)
+    .eq('article_id', articleId)
+  if (error) throw new Error(`removeFromKb 失败: ${error.message}`)
 }

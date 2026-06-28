@@ -8,7 +8,7 @@ import { embed, embedOne } from '../llm/embedding'
 import { supabaseAdmin } from '../db/client'
 import {
   insertRow,
-  matchChunks,
+  matchChunksByArticles,
   matchKnowledge,
   keywordChunks,
   keywordKnowledge,
@@ -16,6 +16,7 @@ import {
   type ChunkHit,
   type KnowledgeHit,
 } from '../db/queries'
+import { addToKb, listReplicaArticleIds } from '../db/articles'
 
 const CHAT_BASE = process.env.CHAT_BASE_URL // https://api.ofox.ai/anthropic（不含 /v1）
 const CHAT_KEY = process.env.CHAT_API_KEY
@@ -144,32 +145,46 @@ export async function ingestArticle(
     })
   }
 
+  // 3.6 方案B：创建者默认引用这篇新文档
+  await addToKb(replicaId, articleId)
+
   return { articleId, chunkCount: pieces.length }
 }
 
 // ============================================================
-// 3b. ingestArticleById：对「已存在」的 article 原文重新向量化入库
-//     不创建新 article；先删旧 chunks 再分块+上下文化+embed+插入，避免重复。
+// 3b. ingestArticleById：让「当前分身」引用一篇「已存在」的全局文档（方案B）。
+//     复用检测：该文档已有 chunks 则跳过向量化（全局只一份），直接 addToKb；
+//     否则才分块+上下文化+embed+插 chunks（chunks 全局共享，按 article_id）。
 // ============================================================
-export async function ingestArticleById(articleId: string): Promise<{ chunkCount: number }> {
+export async function ingestArticleById(
+  articleId: string,
+  replicaId: string,
+): Promise<{ chunkCount: number; reused: boolean }> {
   // 取已存在文档原文
   const { data: article, error } = await supabaseAdmin
     .from('articles')
-    .select('id, replica_id, content, title')
+    .select('id, content, title')
     .eq('id', articleId)
     .maybeSingle()
   if (error) throw new Error(`查 article 失败: ${error.message}`)
   if (!article) throw new Error('NOT_FOUND')
 
-  const replicaId = article.replica_id as string
   const content = (article.content as string | null) ?? ''
   if (!content.trim()) throw new Error('该文档无正文内容')
 
-  // 删旧 chunks，避免重复
-  const { error: delErr } = await supabaseAdmin.from('chunks').delete().eq('article_id', articleId)
-  if (delErr) throw new Error(`删除旧 chunks 失败: ${delErr.message}`)
+  // 复用检测：该文档全局已有 chunks 就跳过向量化
+  const { count, error: cntErr } = await supabaseAdmin
+    .from('chunks')
+    .select('id', { count: 'exact', head: true })
+    .eq('article_id', articleId)
+  if (cntErr) throw new Error(`查 chunks 数失败: ${cntErr.message}`)
 
-  // 分块 → 每块上下文说明 → contextual embedding → 插 chunks
+  if ((count ?? 0) > 0) {
+    await addToKb(replicaId, articleId)
+    return { chunkCount: count ?? 0, reused: true }
+  }
+
+  // 首次向量化：分块 → 每块上下文说明 → contextual embedding → 插 chunks（全局一份）
   const pieces = chunkText(content)
 
   const contexts: string[] = []
@@ -183,7 +198,6 @@ export async function ingestArticleById(articleId: string): Promise<{ chunkCount
   for (let i = 0; i < pieces.length; i++) {
     await insertRow('chunks', {
       article_id: articleId,
-      replica_id: replicaId,
       chunk_text: pieces[i],
       context: contexts[i],
       embedding: vectors[i],
@@ -191,7 +205,8 @@ export async function ingestArticleById(articleId: string): Promise<{ chunkCount
     })
   }
 
-  return { chunkCount: pieces.length }
+  await addToKb(replicaId, articleId)
+  return { chunkCount: pieces.length, reused: false }
 }
 
 // ============================================================
@@ -212,10 +227,13 @@ export async function hybridSearch(
 ): Promise<HybridResult[]> {
   const queryEmbedding = await embedOne(query)
 
+  // 方案B：chunks 只搜「当前分身引用的文档」(article_ids)；knowledge_items 仍按 replica_id。
+  const articleIds = await listReplicaArticleIds(replicaId)
+
   // 四路召回（向量 chunk / 关键词 chunk / 向量 knowledge / 关键词 knowledge）
   const [vChunks, kChunks, vKnow, kKnow] = await Promise.all([
-    matchChunks(replicaId, queryEmbedding, topK + 2),
-    keywordChunks(replicaId, query, topK + 2),
+    matchChunksByArticles(articleIds, queryEmbedding, topK + 2),
+    keywordChunks(articleIds, query, topK + 2),
     matchKnowledge(replicaId, queryEmbedding, topK + 2),
     keywordKnowledge(replicaId, query, topK + 2),
   ])

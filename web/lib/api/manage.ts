@@ -58,17 +58,20 @@ export async function addArticle(
   cacheClear('articles:')
 }
 
-// 把已存在的文档（按 articleId）重新向量化入库（不创建新 article）
-export async function ingestArticleById(articleId: string): Promise<{ chunkCount: number }> {
+// 让当前分身引用一篇已存在的全局文档（已向量化则复用，不重灌）
+export async function ingestArticleById(
+  articleId: string,
+  replicaId: string,
+): Promise<{ chunkCount: number; reused: boolean }> {
   const r = await fetch('/api/articles/ingest', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ articleId }),
+    body: JSON.stringify({ articleId, replicaId }),
   })
   const d = await r.json().catch(() => ({}))
   if (!r.ok) throw new Error(d.error || '入库失败')
   cacheClear('articles:')
-  return d as { chunkCount: number }
+  return d as { chunkCount: number; reused: boolean }
 }
 
 export async function patchArticle(id: string, patch: { status?: string; title?: string }): Promise<void> {
@@ -81,8 +84,9 @@ export async function patchArticle(id: string, patch: { status?: string; title?:
   cacheClear('articles:')
 }
 
-export async function deleteArticle(id: string): Promise<void> {
-  const r = await fetch(`/api/articles/${id}`, { method: 'DELETE' })
+// 从当前分身知识库移除对该文档的引用（不删原文/向量）
+export async function deleteArticle(id: string, replicaId: string): Promise<void> {
+  const r = await fetch(`/api/articles/${id}?replicaId=${replicaId}`, { method: 'DELETE' })
   if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || '删除失败')
   cacheClear('articles:')
 }

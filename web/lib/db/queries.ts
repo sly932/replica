@@ -28,6 +28,22 @@ export async function matchChunks(
   return (data ?? []) as ChunkHit[]
 }
 
+// 方案B 检索：只搜「分身引用的文档」(article_ids) 的 chunks；一篇文档全局只一份向量。
+export async function matchChunksByArticles(
+  articleIds: string[],
+  queryEmbedding: number[],
+  matchCount = 8,
+): Promise<ChunkHit[]> {
+  if (articleIds.length === 0) return []
+  const { data, error } = await supabaseAdmin.rpc('match_chunks_by_articles', {
+    p_article_ids: articleIds,
+    query_embedding: queryEmbedding,
+    match_count: matchCount,
+  })
+  if (error) throw new Error(`match_chunks_by_articles 失败: ${error.message}`)
+  return (data ?? []) as ChunkHit[]
+}
+
 export interface KnowledgeHit {
   id: string
   question: string
@@ -107,17 +123,19 @@ function buildOrIlike(column: string, query: string): string | null {
   return terms.map((t) => `${column}.ilike.*${t}*`).join(',')
 }
 
+// 方案B：chunks 全局，按「分身引用的文档」(article_ids) 过滤而非 replica_id。
 export async function keywordChunks(
-  replicaId: string,
+  articleIds: string[],
   query: string,
   limit = 8,
 ): Promise<Pick<ChunkHit, 'id' | 'article_id' | 'chunk_text' | 'context'>[]> {
+  if (articleIds.length === 0) return []
   const or = buildOrIlike('context', query)
   if (!or) return []
   const { data, error } = await supabaseAdmin
     .from('chunks')
     .select('id, article_id, chunk_text, context')
-    .eq('replica_id', replicaId)
+    .in('article_id', articleIds)
     .or(or)
     .limit(limit)
   if (error) throw new Error(`keywordChunks 失败: ${error.message}`)

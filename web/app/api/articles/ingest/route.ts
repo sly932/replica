@@ -5,9 +5,10 @@ export const runtime = 'nodejs'
 
 export async function POST(req: Request) {
   try {
-    const { articleId } = (await req.json()) as { articleId?: string }
+    const { articleId, replicaId } = (await req.json()) as { articleId?: string; replicaId?: string }
     if (!articleId) return Response.json({ error: 'articleId 必填' }, { status: 400 })
-    const result = await ingestArticleById(articleId)
+    if (!replicaId) return Response.json({ error: 'replicaId 必填' }, { status: 400 })
+    const result = await ingestArticleById(articleId, replicaId)
     return Response.json(result)
   } catch (e) {
     const msg = (e as Error).message
