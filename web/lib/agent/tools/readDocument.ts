@@ -17,7 +17,9 @@ export function makeReadDocumentTool(ctx: ToolCtx): AgentTool<typeof Params> {
   return {
     name: 'read_document',
     label: 'Read Document',
-    description: '分页读取该分身某篇文档的原文（单次最多 2000 字）。配合 nextIdx/hasMore 翻页直到读完。',
+    description:
+      '当你通过 list_knowledge 或 search_knowledge 定位到某篇文档、需要读它的完整原文细节时，调用此工具分页读取。' +
+      '单次最多 2000 字，配合 nextIdx/hasMore 翻页直到读完。',
     parameters: Params,
     execute: async (_toolCallId, params: Static<typeof Params>) => {
       try {

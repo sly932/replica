@@ -16,8 +16,8 @@ export function makeListKnowledgeTool(ctx: ToolCtx): AgentTool<typeof Params> {
     name: 'list_knowledge',
     label: 'List Knowledge',
     description:
-      '列出该分身知识库里所有文档的 id 与标题（清单视图，不含正文）。' +
-      '用于先纵览有哪些文档，再用 read_document 按 id 读取需要的那篇。',
+      '当你需要先了解自己有哪些文档（拿到清单和 id）再决定读哪篇时，调用此工具。' +
+      '它列出你知识库里所有文档的 id 与标题（不含正文），随后用 read_document 按 id 读取需要的那篇。',
     parameters: Params,
     execute: async (_toolCallId, params: Static<typeof Params>) => {
       const limit = Math.min(200, Math.max(1, Math.floor(params.limit ?? DEFAULT_LIMIT)))

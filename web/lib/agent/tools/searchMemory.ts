@@ -22,7 +22,9 @@ export function makeSearchMemoryTool(ctx: ToolCtx): AgentTool<typeof Params> {
   return {
     name: 'search_memory',
     label: 'Search Memory',
-    description: '在该分身的记忆（启用且未删除）中检索相关内容，用于结合过往记忆作答。',
+    description:
+      '当你需要回忆关于主人的偏好、习惯、过往事实，或判断主人对某事的态度时，调用此工具检索你的记忆。' +
+      '凭检索到的记忆贴近 TA 本人地作答。',
     parameters: Params,
     execute: async (_toolCallId, params: Static<typeof Params>) => {
       const query = params.query?.trim()

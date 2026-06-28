@@ -15,7 +15,8 @@ export function makeSaveQuestionTool(ctx: ToolCtx): AgentTool<typeof Params> {
     name: 'save_question',
     label: 'Save Question',
     description:
-      '当分身无法回答某个问题时，把该问题登记到知识库待主人回答（source=human, status=pending_answer）。',
+      '当你遇到答不上来、知识库和记忆都没有依据、需要转给主人本人确认的问题时，调用此工具把该问题登记为「待回答」，' +
+      '沉淀进飞轮等主人补充（source=human, status=pending_answer）。',
     parameters: Params,
     execute: async (_toolCallId, params: Static<typeof Params>) => {
       const question = params.question?.trim()

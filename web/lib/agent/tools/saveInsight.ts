@@ -17,7 +17,8 @@ export function makeSaveInsightTool(ctx: ToolCtx): AgentTool<typeof Params> {
     name: 'save_insight',
     label: 'Save Insight',
     description:
-      '把推理得出的结论沉淀为待审知识条目（source=reasoning, status=pending_review），供主人复核后入库。',
+      '当你通过推理得出了有价值、值得长期沉淀的结论时，调用此工具把它保存为待审知识条目' +
+      '（source=reasoning, status=pending_review），供主人复核后入库。',
     parameters: Params,
     execute: async (_toolCallId, params: Static<typeof Params>) => {
       const question = params.question?.trim()

@@ -13,7 +13,9 @@ export function makeReadKnowledgeItemTool(ctx: ToolCtx): AgentTool<typeof Params
   return {
     name: 'read_knowledge_item',
     label: 'Read Knowledge Item',
-    description: '按 id 读取该分身知识库中某条知识条目的全文（问题/答案/状态/来源）。',
+    description:
+      '当你需要读取某条知识条目的完整问答内容时，按 id 调用此工具，' +
+      '取回该条目的全文（问题/答案/状态/来源）作为作答依据。',
     parameters: Params,
     execute: async (_toolCallId, params: Static<typeof Params>) => {
       const itemId = params.itemId?.trim()

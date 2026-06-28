@@ -14,7 +14,9 @@ export function makeSearchKnowledgeTool(ctx: ToolCtx): AgentTool<typeof Params> 
   return {
     name: 'search_knowledge',
     label: 'Search Knowledge',
-    description: '在该分身的知识库（文档块 + 知识条目）中检索相关内容，用于回答问题前取证。',
+    description:
+      '知识库（文档块 + 知识条目）是你作为 TA 的数字分身回答问题的根本依据。' +
+      '凡是你不确定、不知道的内容，都应先调用此工具检索知识库，再基于检索结果作答，切勿凭空臆答。',
     parameters: Params,
     execute: async (_toolCallId, params: Static<typeof Params>) => {
       const query = params.query?.trim()

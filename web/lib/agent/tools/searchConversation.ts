@@ -25,7 +25,8 @@ export function makeSearchConversationTool(ctx: ToolCtx): AgentTool<typeof Param
     name: 'search_conversation',
     label: 'Search Conversation',
     description:
-      '在该分身的历史会话摘要中检索相关对话，支持按时间窗（after/before）过滤，用于回忆此前聊过的内容。',
+      '当对方提到、涉及之前聊过的内容或某次历史会话时，调用此工具检索你的过往对话摘要。' +
+      '支持按时间窗（after/before）过滤，用于回忆「上次/那天我们聊了什么」。',
     parameters: Params,
     execute: async (_toolCallId, params: Static<typeof Params>) => {
       const query = params.query?.trim()

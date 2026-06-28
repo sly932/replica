@@ -36,7 +36,9 @@ export function makeManageMemoryTool(ctx: ToolCtx): AgentTool<typeof Params> {
     name: 'manage_memory',
     label: 'Manage Memory',
     description:
-      '管理该分身的长期记忆（仅主人可用）：add 新增（自动查重）、update 修改、delete 软删、list 列出全部。',
+      '你是主人的数字分身（此工具仅主人场景可用）。当你从对话上下文或主人的提问中，' +
+      '捕捉到关于主人的偏好、习惯、事实，或需要新增/更新/删除的记忆时，调用此工具管理长期记忆：' +
+      'add 新增（自动查重）、update 修改、delete 软删、list 列出全部。',
     parameters: Params,
     execute: async (_toolCallId, params: Static<typeof Params>) => {
       // 非主人一律拒绝
