@@ -47,7 +47,7 @@ export default function DocsLibraryPage() {
         </div>
 
         <div className="search" style={{ marginInline: 26 }}>
-          <IcSearch />
+          <IcSearch className="si" />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
