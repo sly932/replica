@@ -24,10 +24,16 @@ const preStyle: React.CSSProperties = {
   padding: '6px 8px', borderRadius: '6px', maxHeight: '200px', overflow: 'auto', margin: 0, fontSize: '11px',
 }
 
+// 个别分身的演示用定制问题（放最前，便于演示特定场景）
+// 陈昊：定价是产品/商务侧信息，分身答不出 → 触发 save_question 登记给真人补答（飞轮演示）
+const DEMO_Q: Record<string, string[]> = {
+  陈昊: ['灵犀对外的商业定价和报价策略具体是多少钱？'],
+}
+
 // 按分身的真实字段（角色/团队）拼几条「针对该分身」的示例问题，点击即填入输入框
 function exampleQuestions(p: Person): string[] {
   const team = p.team || p.org
-  const qs = ['能简单介绍下你自己吗？']
+  const qs = [...(DEMO_Q[p.name] || []), '能简单介绍下你自己吗？']
   if (p.role) qs.push(`作为${p.role}，你平时主要负责哪些工作？`)
   if (team) qs.push(`${team}最近在推进什么？`)
   qs.push('有什么经验或建议能分享给我吗？')
