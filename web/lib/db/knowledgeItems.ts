@@ -13,10 +13,11 @@ export interface KnowledgeItem {
   answer: string | null
   source: 'human' | 'reasoning' | null
   status: KnowledgeStatus
+  enabled: boolean
   created_at: string
 }
 
-const COLS = 'id, replica_id, question, answer, source, status, created_at'
+const COLS = 'id, replica_id, question, answer, source, status, enabled, created_at'
 
 // 列出某分身指定 status 且未软删的条目，按创建时间倒序。
 export async function listKnowledgeItems(
@@ -49,10 +50,11 @@ export async function getKnowledgeItemById(id: string): Promise<KnowledgeItem | 
 // `question + "\n" + answer` 重算 embedding 一并写入。返回更新后的行。
 export async function updateKnowledgeItem(
   id: string,
-  patch: { status?: KnowledgeStatus; answer?: string },
+  patch: { status?: KnowledgeStatus; answer?: string; enabled?: boolean },
 ): Promise<KnowledgeItem> {
   const update: Record<string, unknown> = {}
   if (patch.status !== undefined) update.status = patch.status
+  if (patch.enabled !== undefined) update.enabled = patch.enabled
 
   if (patch.answer !== undefined) {
     update.answer = patch.answer

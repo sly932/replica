@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { IcBulb } from '@/lib/icons'
 import { useReplica } from '@/lib/replicaContext'
-import { cacheGet, cacheSet, cacheClear } from '@/lib/cache'
+import { cacheGet, cacheSet } from '@/lib/cache'
+import { confirmDialog, alertDialog } from '@/lib/dialog'
 
 type KnowledgeStatus = 'pending_answer' | 'pending_review' | 'approved' | 'archived'
 interface KItem {
@@ -13,6 +14,7 @@ interface KItem {
   answer: string | null
   source: 'human' | 'reasoning' | null
   status: KnowledgeStatus
+  enabled: boolean
   created_at: string
 }
 
@@ -92,36 +94,75 @@ export default function ItemsPage() {
 
   useEffect(() => { load() }, [load])
 
-  async function patch(id: string, body: { status?: KnowledgeStatus; answer?: string }) {
-    await fetch(`/api/knowledge-items/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-    cacheClear(`knowledge-items:${replicaId}:`)
-    await load()
+  // 乐观更新：先改本地状态(并写缓存)，后台调接口，失败回滚——避免全局刷新与闪烁
+  const writeCache = (state: Record<string, KItem[]>) => {
+    for (const g of GROUPS) cacheSet(`knowledge-items:${replicaId}:${g.key}`, state[g.key] || [])
   }
-  async function remove(id: string) {
-    await fetch(`/api/knowledge-items/${id}`, { method: 'DELETE' })
-    cacheClear(`knowledge-items:${replicaId}:`)
-    await load()
+  async function optimistic(next: Record<string, KItem[]>, call: () => Promise<Response>) {
+    const prev = byStatus
+    setByStatus(next); writeCache(next)
+    try {
+      const r = await call()
+      if (!r.ok) throw new Error()
+    } catch {
+      setByStatus(prev); writeCache(prev)
+      await alertDialog('操作失败，已恢复到原状态。')
+    }
+  }
+  const apiPatch = (id: string, body: { status?: KnowledgeStatus; answer?: string; enabled?: boolean }) =>
+    () => fetch(`/api/knowledge-items/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+  const apiDelete = (id: string) => () => fetch(`/api/knowledge-items/${id}`, { method: 'DELETE' })
+
+  // 跨状态移动：从 from 组移除、插入 to 组顶部（可带字段修改）
+  const moved = (from: KnowledgeStatus, to: KnowledgeStatus, it: KItem, mut: Partial<KItem> = {}) => {
+    const next = { ...byStatus }
+    next[from] = (next[from] || []).filter((x) => x.id !== it.id)
+    next[to] = [{ ...it, ...mut, status: to }, ...(next[to] || [])]
+    return next
+  }
+  const removed = (from: KnowledgeStatus, it: KItem) => ({ ...byStatus, [from]: (byStatus[from] || []).filter((x) => x.id !== it.id) })
+
+  // 改状态（move）；needConfirm 时先弹自定义二次确认
+  const changeStatus = async (it: KItem, from: KnowledgeStatus, to: KnowledgeStatus, confirmMsg?: string) => {
+    if (confirmMsg && !(await confirmDialog(confirmMsg))) return
+    await optimistic(moved(from, to, it), apiPatch(it.id, { status: to }))
+  }
+  const del = async (it: KItem, from: KnowledgeStatus, confirmMsg: string) => {
+    if (!(await confirmDialog(confirmMsg))) return
+    await optimistic(removed(from, it), apiDelete(it.id))
+  }
+  // approved 条目「是否生效」开关（关闭后不被检索）；可逆操作，无需二次确认
+  const toggleEnabled = async (it: KItem) => {
+    const next = { ...byStatus, approved: (byStatus.approved || []).map((x) => (x.id === it.id ? { ...x, enabled: !x.enabled } : x)) }
+    await optimistic(next, apiPatch(it.id, { enabled: !it.enabled }))
   }
 
   function renderActs(it: KItem, status: KnowledgeStatus) {
     switch (status) {
       case 'pending_answer':
-        return <button className="btn" onClick={() => setModal({ item: it, mode: 'answer' })}>补答</button>
+        return (<>
+          <button className="btn" onClick={() => setModal({ item: it, mode: 'answer' })}>补答</button>
+          <button className="btn ghost" onClick={() => del(it, 'pending_answer', `删除待回答问题「${it.question || '未命名'}」？删除后不可恢复。`)}>删除</button>
+        </>)
       case 'pending_review':
         return (<>
-          <button className="btn" onClick={() => patch(it.id, { status: 'approved' })}>通过</button>
-          <button className="btn ghost" onClick={() => patch(it.id, { status: 'archived' })}>驳回</button>
+          <button className="btn" onClick={() => changeStatus(it, 'pending_review', 'approved')}>通过</button>
+          <button className="btn ghost" onClick={() => changeStatus(it, 'pending_review', 'archived', `驳回并归档「${it.question || '未命名'}」？`)}>驳回</button>
           <button className="btn ghost" onClick={() => setModal({ item: it, mode: 'edit' })}>编辑</button>
         </>)
       case 'approved':
         return (<>
+          <span className="ki-sw" title={it.enabled ? '已生效（可被检索）· 点击关闭' : '已关闭（不被检索）· 点击开启'}>
+            <span className="ki-sw-t">{it.enabled ? '生效中' : '已关闭'}</span>
+            <span className={'toggle' + (it.enabled ? ' on' : '')} onClick={() => toggleEnabled(it)} />
+          </span>
           <button className="btn ghost" onClick={() => setModal({ item: it, mode: 'edit' })}>编辑</button>
-          <button className="btn ghost" onClick={() => patch(it.id, { status: 'archived' })}>归档</button>
+          <button className="btn ghost" onClick={() => changeStatus(it, 'approved', 'archived', `归档「${it.question || '未命名'}」？归档后将不再参与检索。`)}>归档</button>
         </>)
       case 'archived':
         return (<>
-          <button className="btn ghost" onClick={() => patch(it.id, { status: 'pending_review' })}>恢复</button>
-          <button className="btn ghost" onClick={() => remove(it.id)}>删除</button>
+          <button className="btn ghost" onClick={() => changeStatus(it, 'archived', 'pending_review', `恢复「${it.question || '未命名'}」到待审批？`)}>恢复</button>
+          <button className="btn ghost" onClick={() => del(it, 'archived', `彻底删除「${it.question || '未命名'}」？删除后不可恢复。`)}>删除</button>
         </>)
     }
   }
@@ -181,8 +222,16 @@ export default function ItemsPage() {
           hint={modal.mode === 'answer' ? '以分身主人的身份填写答案…' : '修改答案…'}
           onClose={() => setModal(null)}
           onSave={async (answer) => {
-            if (modal.mode === 'answer') await patch(modal.item.id, { status: 'approved', answer })
-            else await patch(modal.item.id, { answer })
+            const it = modal.item
+            if (modal.mode === 'answer') {
+              // 补答：移到「已通过」并默认生效
+              await optimistic(moved(it.status, 'approved', it, { answer, enabled: true }), apiPatch(it.id, { status: 'approved', answer }))
+            } else {
+              // 编辑：原地更新答案
+              const grp = it.status
+              const next = { ...byStatus, [grp]: (byStatus[grp] || []).map((x) => (x.id === it.id ? { ...x, answer } : x)) }
+              await optimistic(next, apiPatch(it.id, { answer }))
+            }
             setModal(null)
           }}
         />

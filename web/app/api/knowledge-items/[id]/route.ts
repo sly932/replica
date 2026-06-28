@@ -13,14 +13,14 @@ const STATUSES: KnowledgeStatus[] = ['pending_answer', 'pending_review', 'approv
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  let body: { status?: string; answer?: string }
+  let body: { status?: string; answer?: string; enabled?: boolean }
   try {
     body = await req.json()
   } catch {
     return Response.json({ error: '非法 JSON' }, { status: 400 })
   }
 
-  const patch: { status?: KnowledgeStatus; answer?: string } = {}
+  const patch: { status?: KnowledgeStatus; answer?: string; enabled?: boolean } = {}
   if (body.status !== undefined) {
     if (!STATUSES.includes(body.status as KnowledgeStatus)) {
       return Response.json({ error: '非法 status' }, { status: 400 })
@@ -28,7 +28,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     patch.status = body.status as KnowledgeStatus
   }
   if (body.answer !== undefined) patch.answer = body.answer
-  if (patch.status === undefined && patch.answer === undefined) {
+  if (body.enabled !== undefined) patch.enabled = !!body.enabled
+  if (patch.status === undefined && patch.answer === undefined && patch.enabled === undefined) {
     return Response.json({ error: '无可更新字段' }, { status: 400 })
   }
 

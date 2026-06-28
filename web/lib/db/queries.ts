@@ -155,6 +155,7 @@ export async function keywordKnowledge(
     .eq('replica_id', replicaId)
     .eq('deleted', false)
     .eq('status', 'approved')
+    .eq('enabled', true) // 关闭(enabled=false)的条目不参与检索
     .or(or)
     .limit(limit)
   if (error) throw new Error(`keywordKnowledge 失败: ${error.message}`)

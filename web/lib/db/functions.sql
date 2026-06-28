@@ -31,7 +31,7 @@ language sql stable as $$
   select id, question, answer, status,
          1 - (embedding <=> query_embedding) as similarity
   from knowledge_items
-  where replica_id = p_replica_id and not deleted and status = 'approved'
+  where replica_id = p_replica_id and not deleted and status = 'approved' and enabled
   order by embedding <=> query_embedding
   limit match_count;
 $$;
