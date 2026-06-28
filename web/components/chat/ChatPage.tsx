@@ -22,6 +22,16 @@ const preStyle: React.CSSProperties = {
   padding: '6px 8px', borderRadius: '6px', maxHeight: '200px', overflow: 'auto', margin: 0, fontSize: '11px',
 }
 
+// 按分身的真实字段（角色/团队）拼几条「针对该分身」的示例问题，点击即填入输入框
+function exampleQuestions(p: Person): string[] {
+  const team = p.team || p.org
+  const qs = ['能简单介绍下你自己吗？']
+  if (p.role) qs.push(`作为${p.role}，你平时主要负责哪些工作？`)
+  if (team) qs.push(`${team}最近在推进什么？`)
+  qs.push('有什么经验或建议能分享给我吗？')
+  return qs.slice(0, 4)
+}
+
 function toPerson(r: { id: string; name: string; role?: string; org?: string; team?: string }, i: number): Person {
   return {
     id: r.id, name: r.name, role: r.role || '', org: r.org || '', team: r.team || '',
@@ -285,6 +295,13 @@ export default function ChatPage() {
                 <button onClick={viewSys} style={{ fontSize: '11.5px', color: 'var(--dim)', background: 'transparent', border: '1px solid var(--stroke)', borderRadius: '7px', padding: '3px 10px', cursor: 'pointer' }}>📋 系统提示词</button>
                 {qCount > 0 && <span style={{ fontSize: '11px', color: 'var(--mute)' }}>排队中 {qCount} 条，答完依次发送</span>}
               </div>
+              {!input.trim() && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '7px', padding: '0 4px 8px' }}>
+                  {exampleQuestions(person).map((eq) => (
+                    <button key={eq} onClick={() => setInput(eq)} style={{ fontSize: '12px', color: 'var(--dim)', background: 'var(--glass)', border: '1px solid var(--stroke)', borderRadius: '14px', padding: '5px 12px', cursor: 'pointer' }}>{eq}</button>
+                  ))}
+                </div>
+              )}
               <div className="cbox">
                 <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) send() }} placeholder={busy ? '回复中…回车可排队' : '输入消息…回车或点击发送'} />
                 {busy
